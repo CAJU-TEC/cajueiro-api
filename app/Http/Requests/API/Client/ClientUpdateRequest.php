@@ -13,7 +13,7 @@ class ClientUpdateRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,20 @@ class ClientUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'first_name' => 'required|max:255',
+            'last_name' => 'required|max:255',
+            'email' => 'required|email|unique:clients,email,' . $this->id,
+            'address' => 'required'
+        ];
+    }
+
+    public function attributes()
+    {
+        return [
+            'first_name' => 'primeiro nome',
+            'last_name' => 'último nome',
+            'email' => 'endereço eletrônico',
+            'address' => 'endereço',
         ];
     }
 }

@@ -14,7 +14,8 @@ class ClientStoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'description' => 'required|max:255',
+            'first_name' => 'required|max:255',
+            'last_name' => 'required|max:255',
             'email' => 'required|email|unique:clients',
             'address' => 'required'
         ];
@@ -23,7 +24,8 @@ class ClientStoreRequest extends FormRequest
     public function attributes()
     {
         return [
-            'description' => 'empresa',
+            'first_name' => 'primeiro nome',
+            'last_name' => 'último nome',
             'email' => 'endereço eletrônico',
             'address' => 'endereço',
         ];

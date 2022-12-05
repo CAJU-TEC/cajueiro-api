@@ -3,18 +3,19 @@
 namespace App\Http\Controllers\Clients;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\API\Client\ClientUpdateRequest;
 use App\Models\Client;
 use DomainException;
-use Illuminate\Http\Request;
 
 class ClientUpdateController extends Controller
 {
-    public function __invoke(Request $request, $id)
+    public function __invoke(ClientUpdateRequest $request, $id)
     {
         try {
             $client = Client::with('image')->find($id);
             $client->update($request->only([
-                'description',
+                'first_name',
+                'last_name',
                 'email',
                 'address'
             ]));

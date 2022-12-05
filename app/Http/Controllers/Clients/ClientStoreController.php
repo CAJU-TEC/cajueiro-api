@@ -16,7 +16,8 @@ class ClientStoreController extends Controller
     public function __invoke(ClientStoreRequest $request)
     {
         $client = $this->client->create($request->only([
-            'description',
+            'first_name',
+            'last_name',
             'email',
             'address'
         ]));
