@@ -1,27 +1,26 @@
 <?php
 
-namespace App\Http\Controllers\Clients;
+namespace App\Http\Controllers\Corporates;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\API\Client\ClientUpdateRequest;
-use App\Models\Client;
+use App\Http\Requests\API\Corporate\CorporateUpdateRequest;
+use App\Models\Corporate;
 use DomainException;
 
-class ClientUpdateController extends Controller
+class CorporateUpdateController extends Controller
 {
-    public function __invoke(ClientUpdateRequest $request, $id)
+    public function __invoke(CorporateUpdateRequest $request, $id)
     {
         try {
-            $client = Client::with(['image', 'email'])->find($id);
-            $client->update($request->only([
-                'corporate_id',
+            $corporate = Corporate::with(['image', 'email'])->find($id);
+            $corporate->update($request->only([
                 'first_name',
                 'last_name',
                 'address'
             ]));
 
             if ($request->email) {
-                $client->email()->updateOrCreate([
+                $corporate->email()->updateOrCreate([
                     'emailable_id' => $id,
                 ], [
                     'description' => $request->email
@@ -29,7 +28,7 @@ class ClientUpdateController extends Controller
             }
 
             if ($request->image) {
-                $name = $client->id . '.' . explode(
+                $name = $corporate->id . '.' . explode(
                     '/',
                     explode(
                         ':',
@@ -43,12 +42,12 @@ class ClientUpdateController extends Controller
                 $uri = storage_path('app/public/images/') . $name;
                 \Image::make($request->image)->save($uri);
 
-                $client->image()->updateOrCreate([
+                $corporate->image()->updateOrCreate([
                     'uri' => $name
                 ]);
             }
 
-            return response()->json($client, 200);
+            return response()->json($corporate, 200);
         } catch (DomainException $e) {
             return response()->json($e->getMessage(), 422);
         }

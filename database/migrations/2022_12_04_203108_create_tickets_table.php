@@ -22,8 +22,9 @@ return new class extends Migration
             $table->enum('priority', ['no', 'yes'])->default('no');
             $table->string('subject');
             $table->text('message');
-            $table->enum('status', ['aberto', 'pendente', 'fechado'])->default('aberto');
+            $table->enum('status', ['open', 'pending', 'closed', 're-opened'])->default('open');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

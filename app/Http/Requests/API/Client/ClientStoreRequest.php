@@ -16,7 +16,6 @@ class ClientStoreRequest extends FormRequest
         return [
             'first_name' => 'required|max:255',
             'last_name' => 'required|max:255',
-            'email' => 'required|email|unique:clients',
             'address' => 'required'
         ];
     }
@@ -26,7 +25,6 @@ class ClientStoreRequest extends FormRequest
         return [
             'first_name' => 'primeiro nome',
             'last_name' => 'último nome',
-            'email' => 'endereço eletrônico',
             'address' => 'endereço',
         ];
     }

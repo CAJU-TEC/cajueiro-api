@@ -8,4 +8,4 @@ use Illuminate\Support\Facades\Route;
 // Route::get('clients/{client}', ClientShowController::class)->name('show');
 // Route::post('clients', ClientStoreController::class)->name('store');
 // Route::put('clients/{client}', ClientUpdateController::class)->name('update');
-Route::delete('images/{client}', ImageDestroyController::class)->name('destroy');
+Route::delete('images/{document}', ImageDestroyController::class)->name('destroy');

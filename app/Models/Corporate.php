@@ -5,21 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
-class Client extends Init
+class Corporate extends Init
 {
-
     protected $guarded = [];
 
     protected $fillable = [
-        'corporate_id',
         'first_name',
         'last_name',
         'address'
     ];
 
     protected $appends = [
-        'full_name',
-        'letter'
+        'full_name'
     ];
 
     public function getLetterAttribute()

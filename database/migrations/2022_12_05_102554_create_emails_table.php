@@ -13,14 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('clients', function (Blueprint $table) {
+        Schema::create('emails', function (Blueprint $table) {
             $table->uuid('id');
-            $table->foreignUuid('corporate_id');
-            $table->string('first_name')->nullable();
-            $table->string('last_name')->nullable();
-            $table->longText('address')->nullable();
+            $table->string('description')->nullable();
+            $table->uuid('emailable_id')->nullable();
+            $table->string('emailable_type')->nullable();
             $table->timestamps();
-            $table->softDeletes('deleted_at');
+            $table->softDeletes();
         });
     }
 
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('clients');
+        Schema::dropIfExists('emails');
     }
 };

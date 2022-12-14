@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Collaborators;
 
 use App\Http\Controllers\Controller;
 use App\Models\Collaborator;
+use Illuminate\Http\Request;
 
-class CollaboratorsShowController extends Controller
+class CollaboratorsDestroyController extends Controller
 {
     //
     public function __construct(private Collaborator $collaborator)
@@ -14,7 +15,9 @@ class CollaboratorsShowController extends Controller
 
     public function __invoke($id)
     {
-        $collaborator = $this->collaborator->with(['email'])->findOrFail($id);
-        return response()->json($collaborator, 200);
+        $collaborator = $this->collaborator->with(['image', 'email'])->find($id);
+        $collaborator->delete();
+
+        return response()->json([], 204);
     }
 }

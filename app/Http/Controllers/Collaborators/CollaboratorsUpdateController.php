@@ -13,8 +13,8 @@ class CollaboratorsUpdateController extends Controller
     public function __invoke(CollaboratorUpdateRequest $request, $id)
     {
         try {
-            $client = Collaborator::with('image')->find($id);
-            $client->update($request->only([
+            $collaborators = Collaborator::with(['image', 'email'])->find($id);
+            $collaborators->update($request->only([
                 'first_name',
                 'last_name',
                 'formation',
@@ -23,11 +23,18 @@ class CollaboratorsUpdateController extends Controller
                 'egress',
                 'cpf',
                 'cnpj',
-                'email',
             ]));
 
+            if ($request->email) {
+                $collaborators->email()->updateOrCreate([
+                    'emailable_id' => $id,
+                ], [
+                    'description' => $request->email
+                ]);
+            }
+
             if ($request->image) {
-                $name = $client->id . '.' . explode(
+                $name = $collaborators->id . '.' . explode(
                     '/',
                     explode(
                         ':',
@@ -41,12 +48,12 @@ class CollaboratorsUpdateController extends Controller
                 $uri = storage_path('app/public/images/') . $name;
                 \Image::make($request->image)->save($uri);
 
-                $client->image()->updateOrCreate([
+                $collaborators->image()->updateOrCreate([
                     'uri' => $name
                 ]);
             }
 
-            return response()->json($client, 200);
+            return response()->json($collaborators, 200);
         } catch (DomainException $e) {
             return response()->json($e->getMessage(), 422);
         }

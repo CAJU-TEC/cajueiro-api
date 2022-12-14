@@ -5,17 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class Image extends Init
+class Email extends Init
 {
-
     protected $guarded = [];
     protected $keyType = 'string';
     public $incrementing = false;
-
-    public function imageable()
-    {
-        return $this->morphTo();
-    }
 
     protected static function boot()
     {

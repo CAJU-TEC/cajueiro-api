@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 // impacts
 Route::get('impacts', ImpactIndexController::class)->name('index');
-Route::get('impacts/{client}', ImpactShowController::class)->name('show');
+Route::get('impacts/{impact}', ImpactShowController::class)->name('show');
 Route::post('impacts', ImpactStoreController::class)->name('store');
-Route::put('impacts/{client}', ImpactUpdateController::class)->name('update');
-Route::delete('impacts/{client}', ImpactDestroyController::class)->name('destroy');
+Route::put('impacts/{impact}', ImpactUpdateController::class)->name('update');
+Route::delete('impacts/{impact}', ImpactDestroyController::class)->name('destroy');

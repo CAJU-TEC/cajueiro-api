@@ -48,6 +48,11 @@ class Collaborator extends Init
         return $this->morphOne(Image::class, 'imageable');
     }
 
+    public function email()
+    {
+        return $this->morphOne(Email::class, 'emailable');
+    }
+
     protected function birth(): Attribute
     {
         return Attribute::make(

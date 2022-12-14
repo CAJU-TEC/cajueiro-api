@@ -23,8 +23,13 @@ class CollaboratorsStoreController extends Controller
             'egress',
             'cpf',
             'cnpj',
-            'email',
         ]));
+
+        if ($request->email) {
+            $collaborator->email()->updateOrCreate([
+                'description' => $request->email
+            ]);
+        }
 
         if ($request->image) {
             $name = $collaborator->id . '.' . explode(
