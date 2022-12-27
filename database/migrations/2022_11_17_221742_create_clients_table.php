@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('clients', function (Blueprint $table) {
             $table->uuid('id');
-            $table->foreignUuid('corporate_id');
+            $table->foreignUuid('corporate_id')->nullable();
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->longText('address')->nullable();

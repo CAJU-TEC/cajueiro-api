@@ -16,13 +16,21 @@ return new class extends Migration
         Schema::create('tickets', function (Blueprint $table) {
             $table->uuid('id');
             $table->foreignUuid('client_id');
-            $table->foreignUuid('collaborator_id');
+            $table->foreignUuid('collaborator_id')->nullable();
             $table->foreignUuid('impact_id');
             $table->increments('code');
             $table->enum('priority', ['no', 'yes'])->default('no');
             $table->string('subject');
             $table->text('message');
-            $table->enum('status', ['open', 'pending', 'closed', 're-opened'])->default('open');
+            $table->enum('status', [
+                'backlog',
+                'todo',
+                'analyze',
+                'development',
+                'test',
+                'pending',
+                'done',
+            ])->default('backlog');
             $table->timestamps();
             $table->softDeletes();
         });

@@ -49,9 +49,11 @@ class Client extends Init
         parent::boot();
 
         static::deleting(function (Model $model) {
-            $file = 'images/' . $model->image->uri ?? '';
-            if (Storage::disk('public')->exists($file)) {
-                Storage::disk('public')->delete($file);
+            if (!empty($model->image?->uri)) {
+                $file = 'images/' . $model->image->uri ?? '';
+                if (Storage::disk('public')->exists($file)) {
+                    Storage::disk('public')->delete($file);
+                }
             }
             $model->image()->delete();
         });
