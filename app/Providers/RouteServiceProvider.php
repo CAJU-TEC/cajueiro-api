@@ -34,46 +34,52 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('routes/api.php'));
 
             // clients
-            Route::middleware('api')
+            Route::middleware(['api', 'auth:sanctum'])
                 ->prefix('api')
                 ->name('clients.')
                 ->group(base_path('routes/clients.php'));
 
             // images
-            Route::middleware('api')
+            Route::middleware(['api', 'auth:sanctum'])
                 ->prefix('api')
                 ->name('images.')
                 ->group(base_path('routes/images.php'));
 
             // impacts
-            Route::middleware('api')
+            Route::middleware(['api', 'auth:sanctum'])
                 ->prefix('api')
                 ->name('impacts.')
                 ->group(base_path('routes/impacts.php'));
 
             // collaborators
-            Route::middleware('api')
+            Route::middleware(['api', 'auth:sanctum'])
                 ->prefix('api')
                 ->name('collaborators.')
                 ->group(base_path('routes/collaborators.php'));
 
             // job plans
-            Route::middleware('api')
+            Route::middleware(['api', 'auth:sanctum'])
                 ->prefix('api')
                 ->name('jobPlans.')
                 ->group(base_path('routes/jobPlans.php'));
 
             // corporates
-            Route::middleware('api')
+            Route::middleware(['api', 'auth:sanctum'])
                 ->prefix('api')
                 ->name('corporates.')
                 ->group(base_path('routes/corporates.php'));
 
             // tickets
-            Route::middleware('api')
+            Route::middleware(['api', 'auth:sanctum'])
                 ->prefix('api')
                 ->name('tickets.')
                 ->group(base_path('routes/tickets.php'));
+
+            // users
+            Route::middleware('api')
+                ->prefix('api')
+                ->name('users.')
+                ->group(base_path('routes/users.php'));
 
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
@@ -88,7 +94,7 @@ class RouteServiceProvider extends ServiceProvider
     protected function configureRateLimiting()
     {
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+            return Limit::perMinute(120)->by($request->user()?->id ?: $request->ip());
         });
     }
 }
