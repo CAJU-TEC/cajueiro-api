@@ -1,18 +1,16 @@
 <?php
 
-// use App\Http\Controllers\Tickets\TicketsDestroyController;
-// use App\Http\Controllers\Tickets\TicketsIndexController;
-// use App\Http\Controllers\Tickets\TicketsShowController;
-
+use App\Http\Controllers\Auth\AuthIndexController;
 use App\Http\Controllers\Auth\AuthLoginController;
 use App\Http\Controllers\Auth\AuthStoreController;
-// use App\Http\Controllers\Tickets\TicketsUpdateController;
 use Illuminate\Support\Facades\Route;
 
-// tickets
+// users
 // Route::delete('tickets/{client}', TicketsDestroyController::class)->name('destroy');
-// Route::get('tickets', TicketsIndexController::class)->name('index');
+Route::get('users', AuthIndexController::class)->name('index');
 // Route::get('tickets/{client}', TicketsShowController::class)->name('show');
-Route::post('users', AuthStoreController::class)->name('store')->middleware('auth:sanctum');
+Route::post('users', AuthStoreController::class)->name('store');
 // Route::put('tickets/{client}', TicketsUpdateController::class)->name('update');
 Route::post('users/login', AuthLoginController::class)->name('login');
+
+// fazer o logout...

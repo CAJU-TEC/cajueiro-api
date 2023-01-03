@@ -13,10 +13,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasUuids, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, HasUuids, SoftDeletes, HasRoles;
 
     protected $keyType = 'string';
     public $incrementing = false;
@@ -65,6 +66,16 @@ class User extends Authenticatable
         return Attribute::make(
             set: fn ($value) => bcrypt($value),
         );
+    }
+
+    public function collaborator()
+    {
+        return $this->hasOne(Collaborator::class, 'user_id');
+    }
+
+    public function getRoleListAttribute()
+    {
+        return $this->roles->pluck('id')->toArray();
     }
 
     protected static function boot()

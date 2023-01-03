@@ -14,7 +14,9 @@ class ClientShowController extends Controller
 
     public function __invoke($id)
     {
-        $client = $this->client->with(['email'])->findOrFail($id);
+        $client = $this->client
+            ->with(['email'])
+            ->findOrFail($id);
         return response()->json($client, 200);
     }
 }

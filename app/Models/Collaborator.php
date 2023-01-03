@@ -16,6 +16,7 @@ class Collaborator extends Init
     protected $guarded = [];
 
     protected $fillable = [
+        'user_id',
         'first_name',
         'last_name',
         'formation',
@@ -28,7 +29,8 @@ class Collaborator extends Init
     ];
 
     protected $appends = [
-        'full_name'
+        'full_name',
+        'letter'
     ];
 
     public function getLetterAttribute()
@@ -51,6 +53,11 @@ class Collaborator extends Init
     public function email()
     {
         return $this->morphOne(Email::class, 'emailable');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     protected function birth(): Attribute

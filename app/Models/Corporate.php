@@ -16,7 +16,8 @@ class Corporate extends Init
     ];
 
     protected $appends = [
-        'full_name'
+        'full_name',
+        'letter'
     ];
 
     public function getLetterAttribute()

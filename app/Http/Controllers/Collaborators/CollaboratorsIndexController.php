@@ -15,6 +15,6 @@ class CollaboratorsIndexController extends Controller
     //
     public function __invoke()
     {
-        return response()->json($this->collaborators->with(['image', 'email'])->latest()->get(), 200);
+        return response()->json($this->collaborators->with(['image', 'email', 'user'])->latest()->get(), 200);
     }
 }
