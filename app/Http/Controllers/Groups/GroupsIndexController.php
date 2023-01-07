@@ -17,7 +17,7 @@ class GroupsIndexController extends Controller
     public function __invoke()
     {
         try {
-            return response()->json($this->groups->with(['users'])->latest()->get(), 200);
+            return response()->json($this->groups->with(['users', 'permissions'])->latest()->paginate(10), 200);
         } catch (Exception $e) {
             return response()->json($e->getMessage(), 500);
         }

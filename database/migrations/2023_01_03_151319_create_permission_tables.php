@@ -58,7 +58,7 @@ class CreatePermissionTables extends Migration
             $table->uuid(PermissionRegistrar::$pivotPermission);
 
             $table->string('model_type');
-            $table->uuid($columnNames['model_morph_key']);
+            $table->uuid($columnNames['model_morph_key'])->nullable();
             $table->index([$columnNames['model_morph_key'], 'model_type'], 'model_has_permissions_model_id_model_type_index');
 
             $table->foreign(PermissionRegistrar::$pivotPermission)
@@ -66,7 +66,7 @@ class CreatePermissionTables extends Migration
                 ->on($tableNames['permissions'])
                 ->onDelete('cascade');
             if ($teams) {
-                $table->uuid($columnNames['team_foreign_key']);
+                $table->uuid($columnNames['team_foreign_key'])->nullable();
                 $table->index($columnNames['team_foreign_key'], 'model_has_permissions_team_foreign_key_index');
 
                 $table->primary(
@@ -93,13 +93,13 @@ class CreatePermissionTables extends Migration
                 ->on($tableNames['roles'])
                 ->onDelete('cascade');
             if ($teams) {
-                $table->uuid($columnNames['team_foreign_key']);
+                $table->uuid($columnNames['team_foreign_key'])->nullable();
                 $table->index($columnNames['team_foreign_key'], 'model_has_roles_team_foreign_key_index');
 
-                $table->primary(
-                    [$columnNames['team_foreign_key'], PermissionRegistrar::$pivotRole, $columnNames['model_morph_key'], 'model_type'],
-                    'model_has_roles_role_model_type_primary'
-                );
+                // $table->primary(
+                //     [$columnNames['team_foreign_key'], PermissionRegistrar::$pivotRole, $columnNames['model_morph_key'], 'model_type'],
+                //     'model_has_roles_role_model_type_primary'
+                // );
             } else {
                 $table->primary(
                     [PermissionRegistrar::$pivotRole, $columnNames['model_morph_key'], 'model_type'],

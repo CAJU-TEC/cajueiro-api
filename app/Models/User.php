@@ -57,8 +57,8 @@ class User extends Authenticatable
 
     public function getLetterAttribute()
     {
-        if ($this->description)
-            return strtoupper(substr($this->description, 0, 1));
+        if ($this->name)
+            return strtoupper(substr($this->name, 0, 1));
     }
 
     protected function password(): Attribute

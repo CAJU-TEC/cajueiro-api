@@ -9,7 +9,7 @@ use App\Http\Controllers\Clients\ClientUpdateController;
 use Illuminate\Support\Facades\Route;
 
 // clients
-Route::get('clients', ClientIndexController::class)->name('index');
+Route::get('clients', ClientIndexController::class)->name('index')->middleware(['role_or_permission:super-admin|clients.index']);
 Route::post('clients/storeSimplified', ClientStoreSimpliedController::class)->name('storeSimplified');
 Route::post('clients', ClientStoreController::class)->name('store');
 Route::get('clients/{client}', ClientShowController::class)->name('show');

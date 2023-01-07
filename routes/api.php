@@ -17,7 +17,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    $userLoggin = Auth::user();
-    $payload = User::with(['roles'])->find($userLoggin->id)->first();
-    return $payload;
+    $userLoggin = Auth::user()->getAllPermissions();
+    return [
+        'user' => Auth::user()
+    ];
 });
