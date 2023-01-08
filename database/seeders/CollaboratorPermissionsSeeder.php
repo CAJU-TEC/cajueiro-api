@@ -38,18 +38,8 @@ class CollaboratorPermissionsSeeder extends Seeder
             'collaborators.programadores' => $insertPermissions('collaborators.programadores'),
         ];
 
-        $user = \App\Models\User::firstOrCreate([
-            'name' => 'Atendente',
-            'email' => 'atendente@atendente.com',
-        ], [
-            'name' => 'Atendente',
-            'email' => 'atendente@atendente.com',
-            'password' => 'password' //password
-        ]);
-
         foreach ($permissionIdsByRole as $role => $permissions) {
             $role = Role::firstOrCreate(['name' => $role]);
-            $user->assignRole($role);
 
             foreach ($permissions as $permission) {
                 $role->givePermissionTo($permission['name']);

@@ -18,13 +18,17 @@ class TicketsPermissionsSeeder extends Seeder
                 'tickets.destroy',
                 'tickets.index',
                 'tickets.show',
+                'tickets.create',
                 'tickets.store',
+                'tickets.edit',
                 'tickets.update',
             ],
             'tickets.programadores' => [
                 'tickets.index',
                 'tickets.show',
+                'tickets.create',
                 'tickets.store',
+                'tickets.edit',
                 'tickets.update',
             ],
         ];
@@ -37,6 +41,16 @@ class TicketsPermissionsSeeder extends Seeder
             'tickets.*' => $insertPermissions('tickets'),
             'tickets.programadores' => $insertPermissions('tickets.programadores'),
         ];
+
+        // $user = \App\Models\User::firstOrCreate([
+        //     'name' => 'Atendente',
+        //     'email' => 'atendente@atendente.com',
+        // ], [
+        //     'name' => 'Atendente',
+        //     'email' => 'atendente@atendente.com',
+        //     'password' => 'password' //password
+        // ]);
+        // $user->givePermissionTo('tickets.index');
 
 
         foreach ($permissionIdsByRole as $role => $permissions) {

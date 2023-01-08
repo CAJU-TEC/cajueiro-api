@@ -7,25 +7,25 @@ use App\Models\Role;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\PermissionRegistrar;
 
-class ClientsPermissionsSeeder extends Seeder
+class UsersPermissionsSeeder extends Seeder
 {
     public function run()
     {
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
         //
         $permissionsByRole = [
-            'clients' => [
-                'clients.destroy',
-                'clients.index',
-                'clients.show',
-                'clients.store',
-                'clients.update',
+            'users' => [
+                'users.destroy',
+                'users.index',
+                'users.show',
+                'users.store',
+                'users.update',
             ],
-            'clients.programadores' => [
-                'clients.index',
-                'clients.show',
-                'clients.store',
-                'clients.update',
+            'users.programadores' => [
+                'users.index',
+                'users.show',
+                'users.store',
+                'users.update',
             ],
         ];
 
@@ -34,12 +34,22 @@ class ClientsPermissionsSeeder extends Seeder
             ->toArray();
 
         $permissionIdsByRole = [
-            'clients.*' => $insertPermissions('clients'),
-            'clients.programadores' => $insertPermissions('clients.programadores'),
+            'users.*' => $insertPermissions('users'),
+            'users.programadores' => $insertPermissions('users.programadores'),
         ];
+
+        $user = \App\Models\User::firstOrCreate([
+            'name' => 'Atendente',
+            'email' => 'atendente@atendente.com',
+        ], [
+            'name' => 'Atendente',
+            'email' => 'atendente@atendente.com',
+            'password' => 'password' //password
+        ]);
 
         foreach ($permissionIdsByRole as $role => $permissions) {
             $role = Role::firstOrCreate(['name' => $role]);
+            $user->assignRole($role);
 
             foreach ($permissions as $permission) {
                 $role->givePermissionTo($permission['name']);

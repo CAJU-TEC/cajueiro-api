@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             ImagesPermissionsSeeder::class,
             ImpactsPermissionsSeeder::class,
             JobPlansPermissionsSeeder::class,
+            UsersPermissionsSeeder::class,
         ]);
     }
 }
