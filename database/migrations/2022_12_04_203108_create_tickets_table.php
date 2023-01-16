@@ -31,6 +31,7 @@ return new class extends Migration
                 'pending',
                 'done',
             ])->default('backlog');
+            $table->dateTime('date_attribute_ticket')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
