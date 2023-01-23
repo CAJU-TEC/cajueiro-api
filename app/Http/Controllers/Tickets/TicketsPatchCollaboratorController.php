@@ -7,6 +7,7 @@ use App\Models\Impact;
 use App\Models\Ticket;
 use App\Models\User;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class TicketsPatchCollaboratorController extends Controller
@@ -27,7 +28,12 @@ class TicketsPatchCollaboratorController extends Controller
             $ticket->status = 'development';
             $ticket->date_attribute_ticket = NOW();
             $ticket->update();
-            return response()->json(Ticket::with(['collaborator'])->find($id), 200);
+            return response()->json(Ticket::with([
+                'collaborator',
+                'comments' => function (Builder $builder) {
+                    return $builder->with(['collaborator'])->orderBy('created_at', 'asc');
+                },
+            ])->find($id), 200);
         } catch (Exception $e) {
             response()->json($e->getMessage(), 500);
         }

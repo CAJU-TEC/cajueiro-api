@@ -13,15 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tickets', function (Blueprint $table) {
+        Schema::create('comments', function (Blueprint $table) {
             $table->uuid('id');
-            $table->foreignUuid('client_id');
             $table->foreignUuid('collaborator_id')->nullable();
-            $table->foreignUuid('impact_id');
-            $table->increments('code');
-            $table->enum('priority', ['no', 'yes'])->default('no');
-            $table->string('subject');
-            $table->text('message');
+            $table->uuid('commentable_id')->nullable();
+            $table->string('commentable_type')->nullable();
+            $table->text('description');
             $table->enum('status', [
                 'backlog',
                 'todo',
@@ -31,8 +28,6 @@ return new class extends Migration
                 'pending',
                 'done',
             ])->default('backlog');
-            $table->dateTime('date_attribute_ticket')->nullable();
-            $table->dateTime('date_finish_ticket')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -45,6 +40,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tickets');
+        Schema::dropIfExists('comments');
     }
 };

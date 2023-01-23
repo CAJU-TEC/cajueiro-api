@@ -14,7 +14,13 @@ class TicketsShowController extends Controller
 
     public function __invoke($id)
     {
-        $ticket = $this->ticket->with(['impact', 'client.email', 'image', 'collaborator.image'])->findOrFail($id);
+        $ticket = $this->ticket->with([
+            'impact',
+            'client.email',
+            'image',
+            'collaborator.image',
+            'comments.collaborator.image'
+        ])->findOrFail($id);
         return response()->json($ticket, 200);
     }
 }

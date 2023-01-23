@@ -82,16 +82,22 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('routes/users.php'));
 
             // roles
-            Route::middleware('api')
+            Route::middleware('api', 'auth:sanctum')
                 ->prefix('api')
                 ->name('roles.')
                 ->group(base_path('routes/roles.php'));
 
             // permissions
-            Route::middleware('api')
+            Route::middleware('api', 'auth:sanctum')
                 ->prefix('api')
                 ->name('permissions.')
                 ->group(base_path('routes/permissions.php'));
+
+            // comments
+            Route::middleware('api', 'auth:sanctum')
+                ->prefix('api')
+                ->name('comments.')
+                ->group(base_path('routes/comments.php'));
 
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));

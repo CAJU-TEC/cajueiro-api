@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             ImpactsPermissionsSeeder::class,
             JobPlansPermissionsSeeder::class,
             UsersPermissionsSeeder::class,
+            CorporatesPermissionsSeeder::class,
         ]);
     }
 }
