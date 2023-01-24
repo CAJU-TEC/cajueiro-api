@@ -19,6 +19,7 @@ class TicketsIndexController extends Controller
             'client',
             'collaborator.email',
             'collaborator.image',
+            'comments',
             'impact'
         ])->latest()->get(), 200);
     }

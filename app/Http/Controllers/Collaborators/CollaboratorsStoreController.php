@@ -42,7 +42,10 @@ class CollaboratorsStoreController extends Controller
                 'entrance',
                 'egress',
                 'cpf',
-                'cnpj'
+                'cnpj',
+                'address',
+                'postal',
+                'number'
             ]),
         );
 

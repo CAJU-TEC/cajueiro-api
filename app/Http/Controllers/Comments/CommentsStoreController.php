@@ -7,6 +7,7 @@ use App\Models\Comment;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Supports\DatesTimes\DateSupport;
+use Exception;
 use Illuminate\Http\Request;
 
 class CommentsStoreController extends Controller
@@ -17,37 +18,41 @@ class CommentsStoreController extends Controller
 
     public function __invoke(Request $request)
     {
-        $ticket = $this->ticket->with(['comments'])->findOrFail($request->get('ticket_id'));
-        $collaborator = User::with(['collaborator'])->find(auth()->user()->id);
+        try {
 
-        $data = [
-            'collaborator_id' => $collaborator->collaborator->id ?? NULL,
-            'description' => $request->get('description'),
-            'status' => $request->get('status'),
-        ];
+            $ticket = $this->ticket->with(['comments'])->findOrFail($request->get('ticket_id'));
+            $collaborator = User::with(['collaborator'])->find(auth()->user()->id);
 
-        $comment = $ticket->comments()->create($data);
+            $data = [
+                'collaborator_id' => $collaborator->collaborator->id ?? NULL,
+                'description' => $request->get('description'),
+                'status' => $request->get('status'),
+            ];
 
-        if ($request->image) {
-            $name = $comment->id . '.' . explode(
-                '/',
-                explode(
-                    ':',
-                    substr(
-                        $request->image,
-                        0,
-                        strpos($request->image, ';')
-                    )
-                )[1]
-            )[1];
-            $uri = storage_path('app/public/images/') . $name;
-            \Image::make($request->image)->save($uri);
+            $comment = $ticket->comments()->create($data);
 
-            $comment->image()->updateOrCreate([
-                'uri' => $name
-            ]);
+            if ($request->image) {
+                $name = $comment->id . '.' . explode(
+                    '/',
+                    explode(
+                        ':',
+                        substr(
+                            $request->image,
+                            0,
+                            strpos($request->image, ';')
+                        )
+                    )[1]
+                )[1];
+                $uri = storage_path('app/public/images/') . $name;
+                \Image::make($request->image)->save($uri);
+
+                $comment->image()->updateOrCreate([
+                    'uri' => $name
+                ]);
+                return response()->json($comment, 201);
+            }
+        } catch (Exception $e) {
+            return response()->json($e->getMessage(), 500);
         }
-
-        return response()->json($comment, 201);
     }
 }

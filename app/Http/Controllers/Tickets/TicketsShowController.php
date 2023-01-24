@@ -19,7 +19,8 @@ class TicketsShowController extends Controller
             'client.email',
             'image',
             'collaborator.image',
-            'comments.collaborator.image'
+            'comments.collaborator.image',
+            'comments.image',
         ])->findOrFail($id);
         return response()->json($ticket, 200);
     }

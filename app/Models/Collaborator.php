@@ -25,7 +25,10 @@ class Collaborator extends Init
         'egress',
         'cpf',
         'cnpj',
-        'email'
+        'email',
+        'address',
+        'postal',
+        'number',
     ];
 
     protected $appends = [
