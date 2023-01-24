@@ -17,7 +17,7 @@ class GroupsListController extends Controller
     public function __invoke()
     {
         try {
-            return response()->json($this->groups->with(['users', 'permissions'])->latest()->get(), 200);
+            return response()->json($this->groups->latest()->get(), 200);
         } catch (Exception $e) {
             return response()->json($e->getMessage(), 500);
         }

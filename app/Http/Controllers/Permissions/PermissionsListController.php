@@ -17,7 +17,7 @@ class PermissionsListController extends Controller
     public function __invoke()
     {
         try {
-            return response()->json($this->permissions->with(['users', 'roles'])->latest()->get(), 200);
+            return response()->json($this->permissions->latest()->get(), 200);
         } catch (Exception $e) {
             return response()->json($e->getMessage(), 500);
         }
