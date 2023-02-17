@@ -24,13 +24,22 @@ class Ticket extends Init
     ];
 
     protected $appends = [
-        'letter'
+        'letter',
+        'dateFinishTicket'
     ];
 
     public function getLetterAttribute()
     {
         if ($this->subject)
             return strtoupper(substr($this->subject, 0, 1));
+    }
+
+    public function getDateFinishTicketAttribute()
+    {
+        if ($comment = $this->comments()->latest()->first()) {
+            return $comment->created_at;
+        }
+        return null;
     }
 
     public function image()

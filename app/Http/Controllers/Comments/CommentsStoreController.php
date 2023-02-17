@@ -24,11 +24,15 @@ class CommentsStoreController extends Controller
             $collaborator = User::with(['collaborator'])->find(auth()->user()->id);
 
             $data = [
-                'collaborator_id' => $collaborator->collaborator->id ?? NULL,
+                'collaborator_id' => $collaborator->collaborator->id ?? $ticket->collaborator_id,
                 'description' => $request->get('description'),
                 'status' => $request->get('status'),
             ];
 
+            $ticket->update([
+                'status' => $request->status,
+                'date_finish_ticket' => now()
+            ]);
             $comment = $ticket->comments()->create($data);
 
             if ($request->image) {

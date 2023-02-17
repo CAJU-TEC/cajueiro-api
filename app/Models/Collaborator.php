@@ -99,7 +99,7 @@ class Collaborator extends Init
     {
         return Attribute::make(
             get: fn ($value) => (new DocumentsSupport())->processReturnDocument((new Cnpj()), $value),
-            set: fn ($value) => (new DocumentsSupport())->processDocument((new Cnpj()), $value),
+            // set: fn ($value) => (new DocumentsSupport())->processDocument((new Cnpj()), $value),
         );
     }
 
