@@ -42,9 +42,10 @@ class CorporateUpdateController extends Controller
                 $uri = storage_path('app/public/images/') . $name;
                 \Image::make($request->image)->save($uri);
 
-                $corporate->image()->updateOrCreate([
-                    'uri' => $name
-                ]);
+                $corporate->image()->updateOrCreate(
+                    ['imageable_id' => $corporate->id],
+                    ['uri' => $name]
+                );
             }
 
             return response()->json($corporate, 200);
