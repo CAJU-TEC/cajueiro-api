@@ -99,6 +99,12 @@ class RouteServiceProvider extends ServiceProvider
                 ->name('comments.')
                 ->group(base_path('routes/comments.php'));
 
+            // email
+            Route::middleware('api')
+                ->prefix('api')
+                ->name('emails.')
+                ->group(base_path('routes/emails.php'));
+
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
         });

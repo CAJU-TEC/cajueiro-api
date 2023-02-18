@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Ticket extends Init
 {
+
     protected $guarded = [];
 
     protected $fillable = [
