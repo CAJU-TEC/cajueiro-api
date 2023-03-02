@@ -17,6 +17,7 @@ class ImpactUpdateController extends Controller
                 'description',
                 'color',
                 'points',
+                'days',
                 'classification',
                 'example',
             ]));

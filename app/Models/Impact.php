@@ -11,6 +11,7 @@ class Impact extends Init
         'description',
         'color',
         'points',
+        'days',
         'classification',
         'example',
     ];
