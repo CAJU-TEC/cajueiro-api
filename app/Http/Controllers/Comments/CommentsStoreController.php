@@ -56,9 +56,10 @@ class CommentsStoreController extends Controller
                 $comment->image()->updateOrCreate([
                     'uri' => $name
                 ]);
-                DB::commit();
-                return response()->json($comment, 201);
             }
+
+            DB::commit();
+            return response()->json($comment, 201);
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json($e->getMessage(), 500);

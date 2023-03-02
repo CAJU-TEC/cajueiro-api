@@ -19,7 +19,7 @@ class TicketsStoreController extends Controller
         'development' => 'DESENVOLVIMENTO',
         'test' => 'TESTE',
         'pending' => 'PENDENTE',
-        'done' => 'FINALIZANDO',
+        'done' => 'FINALIZADO',
     ];
 
     public function __construct(private Ticket $ticket)
