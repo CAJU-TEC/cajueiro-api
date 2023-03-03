@@ -73,6 +73,11 @@ class User extends Authenticatable
         return $this->hasOne(Collaborator::class, 'user_id');
     }
 
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class, 'created_id');
+    }
+
     public function getRoleListAttribute()
     {
         return $this->roles->pluck('id')->toArray();

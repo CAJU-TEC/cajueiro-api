@@ -9,6 +9,7 @@ use App\Notifications\EmailTicketNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\HtmlString;
+use DB;
 
 class TicketsStoreController extends Controller
 {
@@ -29,18 +30,18 @@ class TicketsStoreController extends Controller
     public function __invoke(Request $request)
     {
         try {
+            // DB::beginTransaction();
             $ticket = $this->ticket->create($request->only([
                 'client_id',
                 'collaborator_id',
                 'impact_id',
-                'code',
                 'code',
                 'priority',
                 'subject',
                 'message',
                 'status',
             ]));
-
+            return $request->all();
 
             $dataForSend = $ticket->with(['client'])->find($ticket->id);
 
@@ -82,9 +83,10 @@ class TicketsStoreController extends Controller
                     'uri' => $name
                 ]);
             }
-
+            // DB::beginTransaction();
             return response()->json($ticket, 201);
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
+            // DB::rollBack();
             throw $th->getMessage();
         }
     }

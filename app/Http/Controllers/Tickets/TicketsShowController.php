@@ -18,6 +18,7 @@ class TicketsShowController extends Controller
             'impact',
             'client.email',
             'image',
+            'user',
             'collaborator.image',
             'comments.collaborator.image',
             'comments.image',

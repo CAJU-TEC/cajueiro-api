@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     Auth::user()->collaborator->image;
+    Auth::user()->tickets;
     Auth::user()->getAllPermissions();
     return [
         'user' => Auth::user(),

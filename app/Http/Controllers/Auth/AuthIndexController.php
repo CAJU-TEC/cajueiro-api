@@ -16,6 +16,6 @@ class AuthIndexController extends Controller
     //
     public function __invoke()
     {
-        return response()->json($this->users->with(['collaborator', 'roles'])->latest()->get(), 200);
+        return response()->json($this->users->with(['collaborator', 'roles', 'tickets'])->latest()->get(), 200);
     }
 }

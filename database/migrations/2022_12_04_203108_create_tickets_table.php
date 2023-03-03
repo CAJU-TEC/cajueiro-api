@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('tickets', function (Blueprint $table) {
             $table->uuid('id');
             $table->foreignUuid('client_id');
+            $table->foreignUuid('created_id');
             $table->foreignUuid('collaborator_id')->nullable();
             $table->foreignUuid('impact_id');
             $table->increments('code');

@@ -15,7 +15,7 @@ class Ticket extends Init
         'client_id',
         'collaborator_id',
         'impact_id',
-        'code',
+        'created_id',
         'code',
         'priority',
         'subject',
@@ -56,6 +56,11 @@ class Ticket extends Init
     public function client()
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'created_id');
     }
 
     public function collaborator()
