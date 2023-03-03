@@ -6,12 +6,25 @@ use App\Http\Controllers\Controller;
 use App\Models\Comment;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Notifications\EmailTicketNotification;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\HtmlString;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class CommentsStoreController extends Controller
 {
+    const STATUS = [
+        'backlog' => 'AGUARDANDO',
+        'todo' => 'A FAZER',
+        'analyze' => 'ANALISE',
+        'development' => 'DESENVOLVIMENTO',
+        'test' => 'TESTE',
+        'pending' => 'PENDENTE',
+        'done' => 'FINALIZADO',
+    ];
+
     public function __construct(private Comment $comment, private Ticket $ticket)
     {
     }
@@ -35,6 +48,27 @@ class CommentsStoreController extends Controller
             ]);
 
             throw_if(empty($data['description']), new Exception('Preencha o campo do comentário para interagir'));
+
+            $dataForSend = $ticket->with(['client'])->find($ticket->id);
+            if ($dataForSend->status === 'done') {
+                $project = [
+                    'subject' => '[#' . $dataForSend->code . '] ' . $dataForSend->subject,
+                    'greeting' => 'Olá, ' . $dataForSend->client->full_name,
+                    'body' => ($dataForSend->priority == 'yes') ? 'PRIORIDADE' : '',
+                    'status' => self::STATUS[$data['status']],
+                    'ticketText' => new HtmlString($data['description']),
+                    'thanks' => 'Obrigado pela sua atenção.',
+                    'actionText' => 'RESPONDER PROTOCOLO',
+                    'warning' => 'Caso tenha a necessidade de responder esse e-mail(protocolo). Por favor, faça-o clicando no link acima.',
+                    'actionURL' => route('tickets.index'),
+                    'priority' => $dataForSend->priority,
+                    'id' => $dataForSend->id
+                ];
+
+                Notification::route('mail', [
+                    $dataForSend->client->email->description => $dataForSend->client->full_name,
+                ])->notify(new EmailTicketNotification($project));
+            }
 
             $comment = $ticket->comments()->create($data);
 

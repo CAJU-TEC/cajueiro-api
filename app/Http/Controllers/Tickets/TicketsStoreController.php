@@ -41,7 +41,6 @@ class TicketsStoreController extends Controller
                 'message',
                 'status',
             ]));
-            return $request->all();
 
             $dataForSend = $ticket->with(['client'])->find($ticket->id);
 
