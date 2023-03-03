@@ -14,4 +14,4 @@ Route::get('tickets/{ticket}', TicketsShowController::class)->name('show')->midd
 Route::post('tickets', TicketsStoreController::class)->name('store')->middleware(['role_or_permission:super-admin|tickets.store']);
 Route::put('tickets/{ticket}', TicketsUpdateController::class)->name('update')->middleware(['role_or_permission:super-admin|tickets.update']);
 Route::delete('tickets/{ticket}', TicketsDestroyController::class)->name('destroy')->middleware(['role_or_permission:super-admin|tickets.destroy']);
-Route::patch('tickets/{ticket}', TicketsPatchCollaboratorController::class)->name('patchCollaborator')->middleware(['role_or_permission:super-admin|tickets.patchCollaborator']);
+Route::patch('tickets/{ticket}', TicketsPatchCollaboratorController::class)->name('patchCollaborator');
