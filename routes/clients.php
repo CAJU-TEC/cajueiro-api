@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Route;
 
 // clients
 Route::get('clients', ClientIndexController::class)->name('index')->middleware(['role_or_permission:super-admin|clients.index']);
-Route::post('clients/storeSimplified', ClientStoreSimpliedController::class)->name('storeSimplified');
-Route::post('clients', ClientStoreController::class)->name('store');
-Route::get('clients/{client}', ClientShowController::class)->name('show');
-Route::put('clients/{client}', ClientUpdateController::class)->name('update');
-Route::delete('clients/{client}', ClientDestroyController::class)->name('destroy');
+Route::post('clients/storeSimplified', ClientStoreSimpliedController::class)->name('storeSimplified')->middleware(['role_or_permission:super-admin|clients.storeSimplified']);
+Route::post('clients', ClientStoreController::class)->name('store')->middleware(['role_or_permission:super-admin|clients.store']);
+Route::get('clients/{client}', ClientShowController::class)->name('show')->middleware(['role_or_permission:super-admin|clients.show']);
+Route::put('clients/{client}', ClientUpdateController::class)->name('update')->middleware(['role_or_permission:super-admin|clients.update']);
+Route::delete('clients/{client}', ClientDestroyController::class)->name('destroy')->middleware(['role_or_permission:super-admin|clients.destroy']);
