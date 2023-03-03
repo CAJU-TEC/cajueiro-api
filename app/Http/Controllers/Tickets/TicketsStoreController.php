@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Notifications\EmailTicketNotification;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\HtmlString;
@@ -30,7 +31,7 @@ class TicketsStoreController extends Controller
     public function __invoke(Request $request)
     {
         try {
-            // DB::beginTransaction();
+            DB::beginTransaction();
             $ticket = $this->ticket->create($request->only([
                 'client_id',
                 'collaborator_id',
@@ -63,29 +64,31 @@ class TicketsStoreController extends Controller
             ])->notify(new EmailTicketNotification($project));
 
 
-            if ($request->image) {
-                $name = $ticket->id . '.' . explode(
-                    '/',
-                    explode(
-                        ':',
-                        substr(
-                            $request->image,
-                            0,
-                            strpos($request->image, ';')
-                        )
-                    )[1]
-                )[1];
-                $uri = storage_path('app/public/images/') . $name;
-                \Image::make($request->image)->save($uri);
+            if (count($request->image) > 0) {
+                foreach ($request->image as $image) {
+                    $name = $ticket->id . '-' . Carbon::now()->format('Ymiv') . '.' . explode(
+                        '/',
+                        explode(
+                            ':',
+                            substr(
+                                $image,
+                                0,
+                                strpos($image, ';')
+                            )
+                        )[1]
+                    )[1];
+                    $uri = storage_path('app/public/images/') . $name;
+                    \Image::make($image)->save($uri);
 
-                $ticket->image()->updateOrCreate([
-                    'uri' => $name
-                ]);
+                    $ticket->image()->updateOrCreate([
+                        'uri' => $name
+                    ]);
+                }
             }
-            // DB::beginTransaction();
+            DB::commit();
             return response()->json($ticket, 201);
         } catch (\Exception $th) {
-            // DB::rollBack();
+            DB::rollBack();
             throw $th->getMessage();
         }
     }
