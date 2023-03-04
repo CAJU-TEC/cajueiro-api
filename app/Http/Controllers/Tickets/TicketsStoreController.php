@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Tickets;
 
+use App\Events\TicketsListEvent;
+use App\Events\TicketsListPusher;
 use App\Http\Controllers\Controller;
 use App\Models\Ticket;
 use App\Models\User;
@@ -11,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\HtmlString;
 use DB;
+use Pusher\Pusher;
 
 class TicketsStoreController extends Controller
 {
@@ -31,7 +34,7 @@ class TicketsStoreController extends Controller
     public function __invoke(Request $request)
     {
         try {
-            DB::beginTransaction();
+            // DB::beginTransaction();
             $ticket = $this->ticket->create($request->only([
                 'client_id',
                 'collaborator_id',
@@ -63,6 +66,8 @@ class TicketsStoreController extends Controller
                 $dataForSend->client->email->description => $dataForSend->client->full_name,
             ])->notify(new EmailTicketNotification($project));
 
+            event(new TicketsListPusher($ticket));
+            // TicketsListEvent::dispatch('hello world');
 
             if (count($request->image) > 0) {
                 foreach ($request->image as $image) {
@@ -85,10 +90,10 @@ class TicketsStoreController extends Controller
                     ]);
                 }
             }
-            DB::commit();
+            // DB::commit();
             return response()->json($ticket, 201);
         } catch (\Exception $th) {
-            DB::rollBack();
+            // DB::rollBack();
             throw $th->getMessage();
         }
     }
