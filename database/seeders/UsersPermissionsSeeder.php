@@ -20,6 +20,7 @@ class UsersPermissionsSeeder extends Seeder
                 'users.show',
                 'users.store',
                 'users.update',
+                'users.list',
             ],
             'users.programadores' => [
                 'users.index',

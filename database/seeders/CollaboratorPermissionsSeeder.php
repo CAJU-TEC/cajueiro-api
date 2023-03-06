@@ -20,6 +20,7 @@ class CollaboratorPermissionsSeeder extends Seeder
                 'collaborators.show',
                 'collaborators.store',
                 'collaborators.update',
+                'collaborators.list',
             ],
             'collaborators.programadores' => [
                 'collaborators.index',

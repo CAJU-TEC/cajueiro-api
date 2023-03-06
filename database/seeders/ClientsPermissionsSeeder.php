@@ -20,12 +20,14 @@ class ClientsPermissionsSeeder extends Seeder
                 'clients.show',
                 'clients.store',
                 'clients.update',
+                'clients.list',
             ],
             'clients.programadores' => [
                 'clients.index',
                 'clients.show',
                 'clients.store',
                 'clients.update',
+                'clients.list',
             ],
         ];
 

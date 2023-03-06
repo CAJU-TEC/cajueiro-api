@@ -20,6 +20,7 @@ class ImpactsPermissionsSeeder extends Seeder
                 'impacts.show',
                 'impacts.store',
                 'impacts.update',
+                'impacts.list',
             ],
             'impacts.programadores' => [
                 'impacts.index',

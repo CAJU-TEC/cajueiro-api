@@ -8,6 +8,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use DB;
 
 class TicketsPatchCollaboratorController extends Controller
 {
@@ -21,6 +22,7 @@ class TicketsPatchCollaboratorController extends Controller
     {
         //
         try {
+            DB::beginTransaction();
             $collaborator = User::with(['collaborator'])->find(auth()->user()->id);
             $ticket = Ticket::find($id);
             $ticket->collaborator_id = $collaborator->collaborator->id ?? NULL;
@@ -29,11 +31,11 @@ class TicketsPatchCollaboratorController extends Controller
             $ticket->update();
             return response()->json(Ticket::with([
                 'collaborator',
-                'comments' => function (Builder $builder) {
-                    return $builder->with(['collaborator'])->orderBy('created_at', 'asc');
-                },
+                'comments',
             ])->find($id), 200);
+            DB::commit();
         } catch (Exception $e) {
+            DB::rollBack();
             response()->json($e->getMessage(), 500);
         }
     }

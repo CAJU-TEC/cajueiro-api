@@ -20,6 +20,7 @@ class TicketsPermissionsSeeder extends Seeder
                 'tickets.show',
                 'tickets.create',
                 'tickets.store',
+                'tickets.list',
                 // 'tickets.edit',
                 // 'tickets.update',
             ],

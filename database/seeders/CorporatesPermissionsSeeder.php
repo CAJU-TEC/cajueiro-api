@@ -20,6 +20,7 @@ class CorporatesPermissionsSeeder extends Seeder
                 'corporates.show',
                 'corporates.store',
                 'corporates.update',
+                'corporates.list',
             ],
             'corporates.programadores' => [
                 'corporates.index',

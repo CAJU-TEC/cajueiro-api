@@ -20,6 +20,7 @@ class GroupsPermissionsSeeder extends Seeder
                 'groups.show',
                 'groups.store',
                 'groups.update',
+                'groups.list',
             ],
             'groups.programadores' => [
                 'groups.index',

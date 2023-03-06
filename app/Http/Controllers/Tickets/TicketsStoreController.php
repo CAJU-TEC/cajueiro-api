@@ -34,7 +34,7 @@ class TicketsStoreController extends Controller
     public function __invoke(Request $request)
     {
         try {
-            // DB::beginTransaction();
+            DB::beginTransaction();
             $ticket = $this->ticket->create($request->only([
                 'client_id',
                 'collaborator_id',
@@ -90,10 +90,10 @@ class TicketsStoreController extends Controller
                     ]);
                 }
             }
-            // DB::commit();
+            DB::commit();
             return response()->json($ticket, 201);
         } catch (\Exception $th) {
-            // DB::rollBack();
+            DB::rollBack();
             throw $th->getMessage();
         }
     }

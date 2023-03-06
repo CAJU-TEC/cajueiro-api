@@ -16,6 +16,7 @@ class TicketObserver
     public function saving(Ticket $ticket)
     {
         //
+        if ($ticket->created_id) return;
         $ticket->created_id = Auth::user()->id;
     }
 

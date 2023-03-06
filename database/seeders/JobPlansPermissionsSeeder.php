@@ -20,6 +20,7 @@ class JobPlansPermissionsSeeder extends Seeder
                 'jobplans.show',
                 'jobplans.store',
                 'jobplans.update',
+                'jobplans.list',
             ],
             'jobplans.programadores' => [
                 'jobplans.index',
