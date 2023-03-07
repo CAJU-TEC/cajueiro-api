@@ -70,17 +70,17 @@ class TicketsStoreController extends Controller
 
             // event(new TicketsListPusher($ticket));
 
-            // if ($request->image) {
-            //     foreach ($request->image as $imagem) {
-            //         $name = $this->nomearArquivo($imagem);
-            //         $uri = storage_path('app/public/images/') . $name;
+            if ($request->image) {
+                foreach ($request->image as $imagem) {
+                    $name = $this->nomearArquivo($imagem);
+                    $uri = storage_path('app/public/images/') . $name;
 
-            //         $this->uploadFiles($imagem, $uri);
-            //         $ticket->image()->create([
-            //             'uri' => $name
-            //         ]);
-            //     }
-            // }
+                    $this->uploadFiles($imagem, $uri);
+                    $ticket->image()->create([
+                        'uri' => $name
+                    ]);
+                }
+            }
             DB::commit();
             return response()->json($ticket, 201);
         } catch (\Exception $th) {
