@@ -16,7 +16,7 @@ class TicketsIndexController extends Controller
     {
         return response()->json($this->tickets->with([
             'image',
-            'client',
+            'client.corporate.image',
             'collaborator.email',
             'collaborator.image',
             'comments',

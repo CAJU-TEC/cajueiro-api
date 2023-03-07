@@ -34,6 +34,11 @@ class Client extends Init
             return $this->first_name . ' ' . $this->last_name;
     }
 
+    public function corporate()
+    {
+        return $this->belongsTo(Corporate::class);
+    }
+
     public function image()
     {
         return $this->morphOne(Image::class, 'imageable');
