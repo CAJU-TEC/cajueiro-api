@@ -48,39 +48,39 @@ class TicketsStoreController extends Controller
                 'status',
             ]));
 
-            $dataForSend = $ticket->with(['client'])->find($ticket->id);
+            // $dataForSend = $ticket->with(['client'])->find($ticket->id);
 
-            $project = [
-                'subject' => '[#' . $dataForSend->code . '] ' . $dataForSend->subject,
-                'greeting' => 'Olá, ' . $dataForSend->client->full_name,
-                'body' => ($dataForSend->priority == 'yes') ? 'PRIORIDADE' : '',
-                'status' => self::STATUS[$dataForSend->status],
-                'ticketText' => new HtmlString($dataForSend->message),
-                'thanks' => 'Obrigado pela sua atenção.',
-                'actionText' => 'RESPONDER PROTOCOLO',
-                'warning' => 'Caso tenha a necessidade de responder esse e-mail(protocolo). Por favor, faça-o clicando no link acima.',
-                'actionURL' => route('tickets.index'),
-                'priority' => $dataForSend->priority,
-                'id' => $dataForSend->id
-            ];
+            // $project = [
+            //     'subject' => '[#' . $dataForSend->code . '] ' . $dataForSend->subject,
+            //     'greeting' => 'Olá, ' . $dataForSend->client->full_name,
+            //     'body' => ($dataForSend->priority == 'yes') ? 'PRIORIDADE' : '',
+            //     'status' => self::STATUS[$dataForSend->status],
+            //     'ticketText' => new HtmlString($dataForSend->message),
+            //     'thanks' => 'Obrigado pela sua atenção.',
+            //     'actionText' => 'RESPONDER PROTOCOLO',
+            //     'warning' => 'Caso tenha a necessidade de responder esse e-mail(protocolo). Por favor, faça-o clicando no link acima.',
+            //     'actionURL' => route('tickets.index'),
+            //     'priority' => $dataForSend->priority,
+            //     'id' => $dataForSend->id
+            // ];
 
-            Notification::route('mail', [
-                $dataForSend->client->email->description => $dataForSend->client->full_name,
-            ])->notify(new EmailTicketNotification($project));
+            // Notification::route('mail', [
+            //     $dataForSend->client->email->description => $dataForSend->client->full_name,
+            // ])->notify(new EmailTicketNotification($project));
 
-            event(new TicketsListPusher($ticket));
+            // event(new TicketsListPusher($ticket));
 
-            if ($request->image) {
-                foreach ($request->image as $imagem) {
-                    $name = $this->nomearArquivo($imagem);
-                    $uri = storage_path('app/public/images/') . $name;
+            // if ($request->image) {
+            //     foreach ($request->image as $imagem) {
+            //         $name = $this->nomearArquivo($imagem);
+            //         $uri = storage_path('app/public/images/') . $name;
 
-                    $this->uploadFiles($imagem, $uri);
-                    $ticket->image()->create([
-                        'uri' => $name
-                    ]);
-                }
-            }
+            //         $this->uploadFiles($imagem, $uri);
+            //         $ticket->image()->create([
+            //             'uri' => $name
+            //         ]);
+            //     }
+            // }
             DB::commit();
             return response()->json($ticket, 201);
         } catch (\Exception $th) {
