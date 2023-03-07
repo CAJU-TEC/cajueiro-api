@@ -48,6 +48,11 @@ class Ticket extends Init
         return $this->morphOne(Image::class, 'imageable');
     }
 
+    public function images()
+    {
+        return $this->morphMany(Image::class, 'imageable');
+    }
+
     public function comments()
     {
         return $this->morphMany(Comment::class, 'commentable');

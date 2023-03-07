@@ -17,7 +17,7 @@ class TicketsShowController extends Controller
         $ticket = $this->ticket->with([
             'impact',
             'client.email',
-            'image',
+            'images',
             'user.collaborator.image',
             'collaborator.image',
             'comments.collaborator.image',

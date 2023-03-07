@@ -81,8 +81,6 @@ class TicketsStoreController extends Controller
                     ]);
                 }
             }
-
-
             DB::commit();
             return response()->json($ticket, 201);
         } catch (\Exception $th) {
