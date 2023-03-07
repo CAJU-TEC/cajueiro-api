@@ -13,6 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\HtmlString;
 use DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Pusher\Pusher;
 
 class TicketsStoreController extends Controller
@@ -67,34 +69,48 @@ class TicketsStoreController extends Controller
             ])->notify(new EmailTicketNotification($project));
 
             event(new TicketsListPusher($ticket));
-            // TicketsListEvent::dispatch('hello world');
 
-            if (count($request->image) > 0) {
-                foreach ($request->image as $image) {
-                    $name = $ticket->id . '-' . Carbon::now()->format('Ymiv') . '.' . explode(
-                        '/',
-                        explode(
-                            ':',
-                            substr(
-                                $image,
-                                0,
-                                strpos($image, ';')
-                            )
-                        )[1]
-                    )[1];
+            if ($request->image) {
+                foreach ($request->image as $imagem) {
+                    $name = $this->nomearArquivo($imagem);
                     $uri = storage_path('app/public/images/') . $name;
-                    \Image::make($image)->save($uri);
 
-                    $ticket->image()->updateOrCreate([
+                    $this->uploadFiles($imagem, $uri);
+                    $ticket->image()->create([
                         'uri' => $name
                     ]);
                 }
             }
+
+
             DB::commit();
             return response()->json($ticket, 201);
         } catch (\Exception $th) {
             DB::rollBack();
             throw $th->getMessage();
         }
+    }
+
+    protected function uploadFiles($upload, $uri)
+    {
+        list(, $upload) = explode(';', $upload);
+        list(, $upload) = explode(',', $upload);
+        $upload = base64_decode($upload);
+        file_put_contents($uri, $upload);
+    }
+
+    protected function nomearArquivo($imagem)
+    {
+        return Str::ulid() . '.' . explode(
+            '/',
+            explode(
+                ':',
+                substr(
+                    $imagem,
+                    0,
+                    strpos($imagem, ';')
+                )
+            )[1]
+        )[1];
     }
 }
