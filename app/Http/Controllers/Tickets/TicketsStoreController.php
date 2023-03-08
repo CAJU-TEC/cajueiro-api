@@ -64,9 +64,9 @@ class TicketsStoreController extends Controller
                 'id' => $dataForSend->id
             ];
 
-            // Notification::route('mail', [
-            //     $dataForSend->client->email->description => $dataForSend->client->full_name,
-            // ])->notify(new EmailTicketNotification($project));
+            Notification::route('mail', [
+                $dataForSend->client->email->description => $dataForSend->client->full_name,
+            ])->notify(new EmailTicketNotification($project));
 
             event(new TicketsListPusher($ticket));
 
