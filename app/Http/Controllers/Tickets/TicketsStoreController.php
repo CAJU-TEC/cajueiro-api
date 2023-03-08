@@ -127,7 +127,7 @@ class TicketsStoreController extends Controller
         //     $dataForSend->client->email->description => $dataForSend->client->full_name,
         // ])->notify(new EmailTicketNotification($project));
 
-        // event(new TicketsListPusher($ticket));
+        event(new TicketsListPusher($ticket));
 
         if ($request->image) {
             foreach ($request->image as $imagem) {
