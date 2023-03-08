@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tickets;
 
 use App\Http\Controllers\Controller;
+use App\Models\Ticket;
 use Exception;
 use Illuminate\Http\Request;
 use PDF;
@@ -17,20 +18,27 @@ class TicketsKanbanController extends Controller
      */
     private $pdf;
 
-    public function __construct()
+    public function __construct(private Ticket $ticket)
     {
         $this->pdf = PDF::loadHTML('');
     }
 
-    public function __invoke(Request $request)
+    public function __invoke(Request $request, $id)
     {
         //
         try {
-            $this->pdf->loadView('reports.kanban');
+            $ticket = $this->ticket->with(['impact', 'user'])->find($id);
+            $this->pdf->loadView('reports.kanban', [
+                'payload' => [
+                    'ticket' => $ticket
+                ]
+            ]);
             $this->pdf->setOptions([
-                'page-width' => '6.5in',
-                'disable-smart-shrinking' => true,
-                'page-size' => 'a6'
+                'page-size' => 'a6',
+                'margin-top' => 5,
+                'margin-bottom' => 5,
+                'margin-left' => 5,
+                'margin-right' => 5,
             ]);
             return $this->pdf->stream();
         } catch (Exception $e) {
