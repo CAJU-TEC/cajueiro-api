@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tickets;
 use App\Events\TicketsListEvent;
 use App\Events\TicketsListPusher;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\API\Ticket\TicketStoreRequest;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Notifications\EmailTicketNotification;
@@ -91,7 +92,7 @@ class TicketsStoreController extends Controller
     {
     }
 
-    public function __invoke(Request $request)
+    public function __invoke(TicketStoreRequest $request)
     {
         // try {
         //     DB::beginTransaction();
