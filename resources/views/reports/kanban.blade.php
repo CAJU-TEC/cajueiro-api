@@ -94,7 +94,7 @@
             <tr>
                 <td colspan="2">
                     <div>Técnico:</div>
-                    <strong>{{ $payload['ticket']->user->name ?? 'SEM TÉCNICO' }}</strong>
+                    <strong>{{ $payload['ticket']->collaborator->first_name ?? 'SEM TÉCNICO' }}</strong>
                 </td>
             </tr>
             <tr>
