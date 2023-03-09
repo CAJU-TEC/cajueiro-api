@@ -86,8 +86,8 @@
                     'done' => ['color' => 'blue-grey-2', 'hex' => '#A6A9A7', 'title' => 'FINALIZADO]'],
                 ];
                 ?>
-                <th style="background-color: {{ $colors[$payload['ticket']->status]['hex'] }}">
-                    {{ $colors[$payload['ticket']->status]['title'] }}</th>
+                <th style="background-color: {{ $payload['ticket']->impact->color }}">
+                    {{ $payload['ticket']->impact->description }}</th>
             </tr>
         </thead>
         <tbody>
