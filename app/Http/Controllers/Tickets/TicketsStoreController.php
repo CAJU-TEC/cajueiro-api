@@ -45,7 +45,6 @@ class TicketsStoreController extends Controller
 
         // images
         'png' => 'png',
-        'jpe' => 'jpeg',
         'jpeg' => 'jpeg',
         'jpg' => 'jpeg',
         'gif' => 'gif',

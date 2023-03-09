@@ -106,15 +106,17 @@
         </tbody>
         <tfoot>
             <tr>
-                <td>ABERTO EM: <strong>{{ $payload['ticket']->created_at->format('d/m/Y H:i') }}</strong></td>
+                <td>ABERTO EM:
+                    <strong>{{ !empty($payload['ticket']->created_at) ? $payload['ticket']->created_at->format('d/m/Y H:i') : '' }}</strong>
+                </td>
                 <td>PRAZO:
-                    <strong>{{ $payload['ticket']->created_at->addDays($payload['ticket']->impact->days)->format('d/m/Y') }}
+                    <strong>{{ !empty($payload['ticket']->created_at) ? $payload['ticket']->created_at->addDays($payload['ticket']->impact->days)->format('d/m/Y') : '' }}
                         - {{ $payload['ticket']->impact->days }} dia(s)</strong>
                 </td>
             </tr>
             <tr>
                 <td>INÍCIO:
-                    <strong>{{ !empty($payload['ticket']->date_attribute_ticket) ? $payload['ticket']->date_attribute_ticket->format('d/m/Y H:i') : '' }}</strong>
+                    <strong>{{ !empty($payload['ticket']->date_attribute_ticket) ? Carbon\Carbon::parse($payload['ticket']->date_attribute_ticket)->format('d/m/Y H:i') : '' }}</strong>
                 </td>
                 <td>FECHADO EM:</td>
             </tr>
