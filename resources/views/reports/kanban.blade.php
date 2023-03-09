@@ -65,6 +65,7 @@
 
         tfoot tr td {
             text-align: left;
+            font-size: 12px;
         }
     </style>
 </head>
