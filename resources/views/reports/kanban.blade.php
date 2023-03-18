@@ -83,7 +83,7 @@
             <tr>
                 <td colspan="2">
                     <div>Técnico:</div>
-                    <strong>{{ $payload['ticket']->collaborator->first_name ?? 'SEM TÉCNICO' }}</strong>
+                    <strong></strong>
                 </td>
             </tr>
             <tr>

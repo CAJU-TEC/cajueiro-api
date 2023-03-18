@@ -17,14 +17,15 @@ class TicketsIndexController extends Controller
     public function __invoke()
     {
         return response()->json(QueryBuilder::for(Ticket::class)
-            ->allowedFilters(['collaborator_id'])
+            ->allowedFilters(['collaborator_id', 'code'])
             ->with([
                 'image',
                 'client.corporate.image',
                 'collaborator.email',
                 'collaborator.image',
                 'comments',
-                'impact'
+                'impact',
+                'user.collaborator.image'
             ])
             ->latest()
             ->get(), 200);
