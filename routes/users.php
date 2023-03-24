@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('users', AuthIndexController::class)->name('index');
 Route::get('users/{user}', AuthShowController::class)->name('show');
 Route::put('users/{user}', AuthUpdateController::class)->name('update');
-Route::post('users', AuthStoreController::class)->name('store')->middleware(['role_or_permission:super-admin|users.*']);
+Route::post('users', AuthStoreController::class)->name('store');
 Route::post('users/refresh', AuthRefreshTokenController::class)->name('refresh');
 Route::post('users/login', AuthLoginController::class)->name('login');
 
