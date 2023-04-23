@@ -25,7 +25,6 @@ class TicketsGraphDashboardController extends Controller
     {
         try {
             $this->month = !empty($request->get('month')) ? $request->get('month') : Carbon::now()->format('m');
-            return $this->month;
             return response()->json(QueryBuilder::for(Ticket::class)
                 ->allowedFilters([
                     'code',
