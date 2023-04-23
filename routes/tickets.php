@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Tickets\TicketsDestroyController;
+use App\Http\Controllers\Tickets\TicketsGraphDashboardController;
 use App\Http\Controllers\Tickets\TicketsIndexController;
 use App\Http\Controllers\Tickets\TicketsKanbanController;
 use App\Http\Controllers\Tickets\TicketsPatchCollaboratorController;
@@ -10,6 +11,8 @@ use App\Http\Controllers\Tickets\TicketsUpdateController;
 use Illuminate\Support\Facades\Route;
 
 // tickets
+Route::post('tickets/graphDashboard/', TicketsGraphDashboardController::class)->name('graphDashboard')->middleware(['role_or_permission:super-admin|tickets.index']);
+
 Route::get('tickets', TicketsIndexController::class)->name('index')->middleware(['role_or_permission:super-admin|tickets.index']);
 Route::get('tickets/{ticket}', TicketsShowController::class)->name('show')->middleware(['role_or_permission:super-admin|tickets.show']);
 Route::get('tickets/kanban/{ticket}', TicketsKanbanController::class)->name('kanban');
