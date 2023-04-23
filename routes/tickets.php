@@ -11,7 +11,7 @@ use App\Http\Controllers\Tickets\TicketsUpdateController;
 use Illuminate\Support\Facades\Route;
 
 // tickets
-Route::post('tickets/graphDashboard', TicketsGraphDashboardController::class)->name('graphDashboard')->middleware(['role_or_permission:super-admin|tickets.index']);
+Route::post('tickets/graphDashboard/', TicketsGraphDashboardController::class)->name('graphDashboard')->middleware(['role_or_permission:super-admin|tickets.index']);
 
 Route::get('tickets', TicketsIndexController::class)->name('index')->middleware(['role_or_permission:super-admin|tickets.index']);
 Route::get('tickets/{ticket}', TicketsShowController::class)->name('show')->middleware(['role_or_permission:super-admin|tickets.show']);
