@@ -21,6 +21,7 @@ class TicketsUpdateController extends Controller
                 'code',
                 'code',
                 'priority',
+                'type',
                 'subject',
                 'message',
                 'status',

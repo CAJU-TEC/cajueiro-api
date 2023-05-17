@@ -30,6 +30,11 @@ class TicketsStoreController extends Controller
         'done' => 'FINALIZADO',
     ];
 
+    const TYPE = [
+        'implementation' => 'IMPLEMENTAÇÃO',
+        'maintenance' => 'MANUTENÇÃO',
+    ];
+
     const MIME_TYPE = [
 
         'txt' => 'text/plain',
@@ -101,6 +106,7 @@ class TicketsStoreController extends Controller
                 'impact_id',
                 'code',
                 'priority',
+                'type',
                 'subject',
                 'message',
                 'status',

@@ -19,6 +19,7 @@ class Ticket extends Init
         'created_id',
         'code',
         'priority',
+        'type',
         'subject',
         'message',
         'status',
