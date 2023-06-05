@@ -17,6 +17,7 @@ class Collaborator extends Init
 
     protected $fillable = [
         'user_id',
+        'jobplan_id',
         'first_name',
         'last_name',
         'formation',
@@ -29,6 +30,7 @@ class Collaborator extends Init
         'address',
         'postal',
         'number',
+        'pix'
     ];
 
     protected $appends = [
@@ -61,6 +63,11 @@ class Collaborator extends Init
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function jobplan()
+    {
+        return $this->belongsTo(JobPlans::class);
     }
 
     protected function birth(): Attribute

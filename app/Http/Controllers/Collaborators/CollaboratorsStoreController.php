@@ -35,6 +35,7 @@ class CollaboratorsStoreController extends Controller
                 'cpf' => $request->cpf
             ],
             $request->only([
+                'jobplan_id',
                 'first_name',
                 'last_name',
                 'formation',
@@ -45,7 +46,8 @@ class CollaboratorsStoreController extends Controller
                 'cnpj',
                 'address',
                 'postal',
-                'number'
+                'number',
+                'pix'
             ]),
         );
 

@@ -17,6 +17,7 @@ class CollaboratorsUpdateController extends Controller
         try {
             $collaborator = Collaborator::with(['image', 'email'])->find($id);
             $collaborator->update($request->only([
+                'jobplan_id',
                 'first_name',
                 'last_name',
                 'formation',
@@ -27,7 +28,8 @@ class CollaboratorsUpdateController extends Controller
                 'cnpj',
                 'address',
                 'postal',
-                'number'
+                'number',
+                'pix'
             ]));
 
             if ($request->email) {

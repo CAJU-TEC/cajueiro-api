@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('collaborators', function (Blueprint $table) {
             $table->uuid('id');
             $table->foreignUuid('user_id')->nullable();
+            $table->foreignUuid('jobplan_id')->nullable();
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('formation')->nullable();
@@ -25,6 +26,7 @@ return new class extends Migration
             $table->string('cnpj')->nullable();
             $table->string('cpf')->nullable();
             $table->string('email')->nullable();
+            $table->string('pix')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
