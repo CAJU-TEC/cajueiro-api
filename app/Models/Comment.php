@@ -22,6 +22,11 @@ class Comment extends Init
         return $this->morphOne(Image::class, 'imageable');
     }
 
+    public function images()
+    {
+        return $this->morphMany(Image::class, 'imageable');
+    }
+
     public function collaborator()
     {
         return $this->belongsTo(Collaborator::class, 'collaborator_id');

@@ -21,7 +21,7 @@ class TicketsShowController extends Controller
             'user.collaborator.image',
             'collaborator.image',
             'comments.collaborator.image',
-            'comments.image',
+            'comments.images',
         ])->findOrFail($id);
         return response()->json($ticket, 200);
     }

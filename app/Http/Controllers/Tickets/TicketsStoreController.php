@@ -2,21 +2,15 @@
 
 namespace App\Http\Controllers\Tickets;
 
-use App\Events\TicketsListEvent;
 use App\Events\TicketsListPusher;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Ticket\TicketStoreRequest;
 use App\Models\Ticket;
-use App\Models\User;
 use App\Notifications\EmailTicketNotification;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\HtmlString;
 use DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Pusher\Pusher;
 
 class TicketsStoreController extends Controller
 {

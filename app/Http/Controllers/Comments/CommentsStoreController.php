@@ -12,6 +12,7 @@ use Illuminate\Support\HtmlString;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class CommentsStoreController extends Controller
 {
@@ -24,6 +25,64 @@ class CommentsStoreController extends Controller
         'pending' => 'PENDENTE',
         'done' => 'FINALIZADO',
     ];
+
+    const MIME_TYPE = [
+
+        'txt' => 'text/plain',
+        'htm' => 'text/html',
+        'html' => 'text/html',
+        'php' => 'text/html',
+        'css' => 'text/css',
+        'js' => 'javascript',
+        'json' => 'json',
+        'xml' => 'xml',
+        'swf' => 'x-shockwave-flash',
+        'flv' => 'video/x-flv',
+
+        // images
+        'png' => 'png',
+        'jpeg' => 'jpeg',
+        'jpg' => 'jpeg',
+        'gif' => 'gif',
+        'bmp' => 'bmp',
+        'ico' => 'vnd.microsoft.icon',
+        'tiff' => 'tiff',
+        'tif' => 'tiff',
+        'svg' => 'svg+xml',
+        'svgz' => 'svg+xml',
+
+        // archives
+        'zip' => 'zip',
+        'rar' => 'x-rar-compressed',
+        'exe' => 'x-msdownload',
+        'msi' => 'x-msdownload',
+        'cab' => 'vnd.ms-cab-compressed',
+
+        // audio/video
+        'mp3' => 'audio/mpeg',
+        'qt' => 'video/quicktime',
+        'mov' => 'video/quicktime',
+
+        // adobe
+        'pdf' => 'pdf',
+        'psd' => 'image/vnd.adobe.photoshop',
+        'ai' => 'postscript',
+        'eps' => 'postscript',
+        'ps' => 'postscript',
+
+        // ms office
+        'doc' => 'msword',
+        'docx' => 'vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'rtf' => 'rtf',
+        'xls' => 'vnd.ms-excel',
+        'xlsx' => 'vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'ppt' => 'vnd.ms-powerpoint',
+
+        // open office
+        'odt' => 'vnd.oasis.opendocument.text',
+        'ods' => 'vnd.oasis.opendocument.spreadsheet',
+    ];
+
 
     public function __construct(private Comment $comment, private Ticket $ticket)
     {
@@ -73,24 +132,36 @@ class CommentsStoreController extends Controller
             $comment = $ticket->comments()->create($data);
 
             if ($request->image) {
-                $name = $comment->id . '.' . explode(
-                    '/',
-                    explode(
-                        ':',
-                        substr(
-                            $request->image,
-                            0,
-                            strpos($request->image, ';')
-                        )
-                    )[1]
-                )[1];
-                $uri = storage_path('app/public/images/') . $name;
-                \Image::make($request->image)->save($uri);
+                foreach ($request->image as $imagem) {
+                    $name = $this->nomearArquivo($imagem);
+                    $uri = storage_path('app/public/images/') . $name;
 
-                $comment->image()->updateOrCreate([
-                    'uri' => $name
-                ]);
+                    $this->uploadFiles($imagem, $uri);
+                    $comment->image()->create([
+                        'uri' => $name
+                    ]);
+                }
             }
+
+            // if ($request->image) {
+            //     $name = $comment->id . '.' . explode(
+            //         '/',
+            //         explode(
+            //             ':',
+            //             substr(
+            //                 $request->image,
+            //                 0,
+            //                 strpos($request->image, ';')
+            //             )
+            //         )[1]
+            //     )[1];
+            //     $uri = storage_path('app/public/images/') . $name;
+            //     \Image::make($request->image)->save($uri);
+
+            //     $comment->image()->updateOrCreate([
+            //         'uri' => $name
+            //     ]);
+            // }
 
             DB::commit();
             return response()->json($comment, 201);
@@ -98,5 +169,23 @@ class CommentsStoreController extends Controller
             DB::rollBack();
             return response()->json($e->getMessage(), 500);
         }
+    }
+
+    protected function uploadFiles($upload, $uri)
+    {
+        list(, $upload) = explode(';', $upload);
+        list(, $upload) = explode(',', $upload);
+        $upload = base64_decode($upload);
+        file_put_contents($uri, $upload);
+    }
+
+    protected function nomearArquivo($imagem)
+    {
+        $mime = explode('/', mime_content_type($imagem))[1];
+        $extense = array_filter(self::MIME_TYPE, function ($value) use ($mime) {
+            return $value == $mime;
+        }, ARRAY_FILTER_USE_BOTH);
+
+        return Str::ulid() . '.' . key($extense);
     }
 }
