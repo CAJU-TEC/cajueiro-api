@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers\Comments;
 
+use App\Events\NotificationTicketsPusher;
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Notifications\EmailTicketNotification;
+use App\Notifications\TicketsSuccessful;
+use App\Supports\Arrays\Unique;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\HtmlString;
 use Exception;
 use Illuminate\Http\Request;
+use Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -92,7 +96,7 @@ class CommentsStoreController extends Controller
     {
         try {
             DB::beginTransaction();
-            $ticket = $this->ticket->with(['comments'])->findOrFail($request->get('ticket_id'));
+            $ticket = $this->ticket->with(['comments.collaborator.user'])->findOrFail($request->get('ticket_id'));
             $collaborator = User::with(['collaborator'])->find(auth()->user()->id);
 
             $data = [
@@ -108,28 +112,36 @@ class CommentsStoreController extends Controller
 
             throw_if(empty($data['description']), new Exception('Preencha o campo do comentário para interagir'));
 
-            $dataForSend = $ticket->with(['client'])->find($ticket->id);
-            if ($dataForSend->status === 'done') {
-                $project = [
-                    'subject' => '[#' . $dataForSend->code . '] ' . $dataForSend->subject,
-                    'greeting' => 'Olá, ' . $dataForSend->client->full_name,
-                    'body' => ($dataForSend->priority == 'yes') ? 'PRIORIDADE' : '',
-                    'status' => self::STATUS[$data['status']],
-                    'ticketText' => new HtmlString($data['description']),
-                    'thanks' => 'Obrigado pela sua atenção.',
-                    'actionText' => 'RESPONDER PROTOCOLO',
-                    'warning' => 'Caso tenha a necessidade de responder esse e-mail(protocolo). Por favor, faça-o clicando no link acima.',
-                    'actionURL' => route('tickets.index'),
-                    'priority' => $dataForSend->priority,
-                    'id' => $dataForSend->id
-                ];
+            $comment = $ticket->comments()->create($data);
 
-                Notification::route('mail', [
-                    $dataForSend->client->email->description => $dataForSend->client->full_name,
-                ])->notify(new EmailTicketNotification($project));
+            $dataForSend = $ticket->with(['client'])->find($ticket->id);
+            $project = [
+                'subject' => '[#' . $dataForSend->code . '] ' . $dataForSend->subject,
+                'greeting' => 'Olá, ' . $dataForSend->client->full_name,
+                'body' => ($dataForSend->priority == 'yes') ? 'PRIORIDADE' : '',
+                'status' => self::STATUS[$data['status']],
+                'ticketText' => new HtmlString($data['description']),
+                'thanks' => 'Obrigado pela sua atenção.',
+                'actionText' => 'RESPONDER PROTOCOLO',
+                'warning' => 'Caso tenha a necessidade de responder esse e-mail(protocolo). Por favor, faça-o clicando no link acima.',
+                'actionURL' => route('tickets.index'),
+                'priority' => $dataForSend->priority,
+                'id' => $dataForSend->id,
+                'code' => $dataForSend->code,
+                'created_at' => $dataForSend->created_at->format('d/m/Y \à\s H:i\h')
+            ];
+
+            // if ($dataForSend->status === 'done') {
+            //     Notification::route('mail', [
+            //         $dataForSend->client->email->description => $dataForSend->client->full_name,
+            //     ])->notify(new EmailTicketNotification($project));
+            // }
+            $collaboratorsForNotifications = (new Unique())->collaborators($ticket->comments);
+            foreach ($collaboratorsForNotifications as $collaborator) {
+                Notification::send($collaborator->collaborator->user, new TicketsSuccessful($project));
             }
 
-            $comment = $ticket->comments()->create($data);
+            event(new NotificationTicketsPusher($collaboratorsForNotifications));
 
             if ($request->image) {
                 foreach ($request->image as $imagem) {

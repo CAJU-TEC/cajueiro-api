@@ -119,14 +119,15 @@ class TicketsStoreController extends Controller
                 'warning' => 'Caso tenha a necessidade de responder esse e-mail(protocolo). Por favor, faça-o clicando no link acima.',
                 'actionURL' => route('tickets.index'),
                 'priority' => $dataForSend->priority,
-                'id' => $dataForSend->id
+                'id' => $dataForSend->id,
+                'code' => $dataForSend->code
             ];
 
             Notification::route('mail', [
                 $dataForSend->client->email->description => $dataForSend->client->full_name,
             ])->notify(new EmailTicketNotification($project));
 
-            event(new TicketsListPusher($ticket));
+            event(new TicketsListPusher($dataForSend));
 
             if ($request->image) {
                 foreach ($request->image as $imagem) {
