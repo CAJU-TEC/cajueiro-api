@@ -65,6 +65,11 @@ class Collaborator extends Init
         return $this->belongsTo(User::class);
     }
 
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
     public function jobplan()
     {
         return $this->belongsTo(JobPlans::class);

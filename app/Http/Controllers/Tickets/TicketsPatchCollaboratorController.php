@@ -23,7 +23,19 @@ class TicketsPatchCollaboratorController extends Controller
         //
         try {
             DB::beginTransaction();
+
             $collaborator = User::with(['collaborator'])->find(auth()->user()->id);
+
+            $tickets = Ticket::where('collaborator_id', $collaborator->collaborator->id)
+                ->where('status', 'pending')
+                ->count();
+
+            if ($tickets > 0) {
+                return response()->json([
+                    'message' => 'Você possui protocolos pendentes'
+                ], 500);
+            }
+
             $ticket = Ticket::find($id);
             $ticket->collaborator_id = $collaborator->collaborator->id ?? NULL;
             $ticket->status = 'development';

@@ -2,11 +2,16 @@
 
 namespace App\Observers;
 
+use App\Models\Collaborator;
 use App\Models\Ticket;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 
 class TicketObserver
 {
+    public function __construct(private Ticket $tickets)
+    {
+    }
     /**
      * Handle the Ticket "created" event.
      *

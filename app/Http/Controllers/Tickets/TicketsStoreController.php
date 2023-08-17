@@ -94,6 +94,7 @@ class TicketsStoreController extends Controller
     {
         try {
             DB::beginTransaction();
+
             $ticket = $this->ticket->create($request->only([
                 'client_id',
                 'collaborator_id',
