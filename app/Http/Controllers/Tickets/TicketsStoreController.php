@@ -22,6 +22,7 @@ class TicketsStoreController extends Controller
         'test' => 'TESTE',
         'pending' => 'PENDENTE',
         'done' => 'FINALIZADO',
+        'validation' => 'VALIDAÇÃO',
     ];
 
     const TYPE = [

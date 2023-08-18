@@ -28,6 +28,7 @@ class CommentsStoreController extends Controller
         'test' => 'TESTE',
         'pending' => 'PENDENTE',
         'done' => 'FINALIZADO',
+        'validation' => 'VALIDAÇÃO',
     ];
 
     const MIME_TYPE = [

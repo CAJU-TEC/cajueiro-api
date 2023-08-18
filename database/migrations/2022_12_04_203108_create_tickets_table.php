@@ -31,6 +31,7 @@ return new class extends Migration
                 'test',
                 'pending',
                 'done',
+                'validation'
             ])->default('backlog');
             $table->dateTime('date_attribute_ticket')->nullable();
             $table->dateTime('date_finish_ticket')->nullable();

@@ -27,6 +27,7 @@ return new class extends Migration
                 'test',
                 'pending',
                 'done',
+                'validation',
             ])->default('backlog');
             $table->timestamps();
             $table->softDeletes();
