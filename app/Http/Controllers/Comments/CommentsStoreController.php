@@ -132,16 +132,16 @@ class CommentsStoreController extends Controller
                 'created_at' => $dataForSend->created_at->format('d/m/Y \à\s H:i\h')
             ];
 
-            // if ($dataForSend->status === 'done') {
-            //     Notification::route('mail', [
-            //         $dataForSend->client->email->description => $dataForSend->client->full_name,
-            //     ])->notify(new EmailTicketNotification($project));
-            // }
+            if ($dataForSend->status === 'done') {
+                Notification::route('mail', [
+                    $dataForSend->client->email->description => $dataForSend->client->full_name,
+                ])->notify(new EmailTicketNotification($project));
+            }
             $collaboratorsForNotifications = (new Unique())->collaborators($ticket->comments);
             foreach ($collaboratorsForNotifications as $collaborator) {
                 Notification::send($collaborator->collaborator->user, new TicketsSuccessful($project));
             }
-
+            // return $collaboratorsForNotifications;
             event(new NotificationTicketsPusher($collaboratorsForNotifications));
 
             if ($request->image) {
