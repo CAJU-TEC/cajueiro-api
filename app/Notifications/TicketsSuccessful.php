@@ -62,9 +62,10 @@ class TicketsSuccessful extends Notification
     public function toArray($notifiable)
     {
         return [
+            'id' => $this->project['id'],
             'code' => $this->project['code'],
             'status' => $this->project['status'],
-            'date' => $this->project['created_at']
+            'date' => $this->project['created_comment_at'],
         ];
     }
 }

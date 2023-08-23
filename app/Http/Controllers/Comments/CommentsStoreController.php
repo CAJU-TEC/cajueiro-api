@@ -129,7 +129,8 @@ class CommentsStoreController extends Controller
                 'priority' => $dataForSend->priority,
                 'id' => $dataForSend->id,
                 'code' => $dataForSend->code,
-                'created_at' => $dataForSend->created_at->format('d/m/Y \à\s H:i\h')
+                'created_at' => $dataForSend->created_at->format('d/m/Y \à\s H:i\h'),
+                'created_comment_at' => $comment->created_at->format('d/m/Y \à\s H:i\h')
             ];
 
             if ($dataForSend->status === 'done') {
