@@ -39,7 +39,7 @@ class TicketsIndexController extends Controller
                 'user.collaborator.image'
             ])
             ->orderBy('code', 'desc')
-            ->limit(500)
+            ->limit(150)
             ->get(), 200);
     }
 }
