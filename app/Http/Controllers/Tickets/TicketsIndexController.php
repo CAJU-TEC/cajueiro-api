@@ -38,7 +38,7 @@ class TicketsIndexController extends Controller
                 'impact',
                 'user.collaborator.image'
             ])
-            ->orderBy('created_at', 'desc')
+            ->orderBy('code', 'desc')
             ->limit(500)
             ->get(), 200);
     }
