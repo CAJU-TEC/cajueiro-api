@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Supports\DatesTimes\DateSupport;
 use DomainException;
 use Illuminate\Http\Request;
 
@@ -22,6 +23,7 @@ class AuthUpdateController extends Controller
             $this->user->update($request->only([
                 'name',
                 'email',
+                'password'
             ]));
 
             $this->updatePermissions([
