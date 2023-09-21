@@ -20,10 +20,11 @@ class Ticket extends Init
         'code',
         'priority',
         'type',
+        'dufy',
         'subject',
         'message',
         'status',
-        'date_attribute_ticket'
+        'date_attribute_ticket',
     ];
 
     protected $appends = [

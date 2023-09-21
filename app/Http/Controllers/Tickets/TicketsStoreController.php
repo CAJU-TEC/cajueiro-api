@@ -30,6 +30,11 @@ class TicketsStoreController extends Controller
         'maintenance' => 'MANUTENÇÃO',
     ];
 
+    // const DUFY = [
+    //     'yes' => 'SIM',
+    //     'no' => 'NÃO',
+    // ];
+
     const MIME_TYPE = [
 
         'txt' => 'text/plain',
@@ -103,6 +108,7 @@ class TicketsStoreController extends Controller
                 'code',
                 'priority',
                 'type',
+                'dufy',
                 'subject',
                 'message',
                 'status',
