@@ -34,7 +34,13 @@ class TicketsIndexController extends Controller
                 'client.corporate.image',
                 'collaborator.email',
                 'collaborator.image',
-                'comments',
+                'comments' => function ($builder) {
+                    return $builder->with([
+                        'collaborator.image',
+                        'collaborator.email'
+                    ])
+                        ->orderBy('created_at', 'desc');
+                },
                 'impact',
                 'user.collaborator.image'
             ])
