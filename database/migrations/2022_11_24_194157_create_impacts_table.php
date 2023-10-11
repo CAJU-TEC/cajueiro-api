@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->string('color')->nullable();
             $table->decimal('points')->nullable();
-            $table->integer('days')->after('points');
+            $table->integer('days');
             $table->text('classification')->nullable();
             $table->text('example')->nullable();
             $table->timestamps();
