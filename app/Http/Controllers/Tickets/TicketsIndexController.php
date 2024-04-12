@@ -45,6 +45,7 @@ class TicketsIndexController extends Controller
                 'user.collaborator.image'
             ])
             ->orderBy('code', 'desc')
+            ->whereYear('created_at', date('Y'))
             ->limit(150)
             ->get(), 200);
     }

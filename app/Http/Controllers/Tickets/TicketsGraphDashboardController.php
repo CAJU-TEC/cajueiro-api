@@ -49,6 +49,7 @@ class TicketsGraphDashboardController extends Controller
                 ->when(!empty($this->month), function ($query) {
                     $query->whereMonth('comments.created_at', $this->month);
                 })
+                ->whereYear('tickets.created_at', date('Y'))
                 ->groupBy('tickets.id')
                 ->get(), 200);
         } catch (Exception $e) {
