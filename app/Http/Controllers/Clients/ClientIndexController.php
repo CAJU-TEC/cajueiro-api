@@ -15,6 +15,6 @@ class ClientIndexController extends Controller
     //
     public function __invoke()
     {
-        return response()->json($this->client->with(['image', 'email'])->latest()->get(), 200);
+        return response()->json($this->client->with(['image', 'email', 'corporate'])->latest()->get(), 200);
     }
 }

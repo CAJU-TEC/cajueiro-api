@@ -32,6 +32,11 @@ class Corporate extends Init
             return $this->first_name . ' ' . $this->last_name;
     }
 
+    public function clients()
+    {
+        return $this->hasMany(Client::class);
+    }
+
     public function image()
     {
         return $this->morphOne(Image::class, 'imageable');

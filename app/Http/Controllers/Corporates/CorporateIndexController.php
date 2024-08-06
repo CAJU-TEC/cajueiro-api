@@ -14,6 +14,10 @@ class CorporateIndexController extends Controller
     //
     public function __invoke()
     {
-        return response()->json($this->corporate->with(['image', 'email'])->latest()->get(), 200);
+        return response()->json($this->corporate->with([
+            'image',
+            'email',
+            'clients.image'
+        ])->latest()->get(), 200);
     }
 }
