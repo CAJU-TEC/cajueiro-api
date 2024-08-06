@@ -20,6 +20,13 @@ class TicketsShowController extends Controller
             'images',
             'user.collaborator.image',
             'collaborator.image',
+            'comments' => function ($builder) {
+                return $builder->with([
+                    'collaborator.image',
+                    'collaborator.email'
+                ])
+                    ->orderBy('created_at', 'desc');
+            },
             'comments.collaborator.image',
             'comments.images',
         ])->findOrFail($id);
