@@ -7,6 +7,8 @@ use App\Filters\AllowedNullableFilter;
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
 use App\Models\Ticket;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -18,10 +20,36 @@ class TicketsIndexController extends Controller
     }
 
     //
-    public function __invoke()
+    public function __invoke(Request $request)
     {
-
-        return response()->json(QueryBuilder::for(Ticket::class)
+        // $cache = $request->cache ?? 'tickets';
+        // $tickets = Cache::get($cache);
+        // if (Cache::has($cache)) {
+        // $tickets = Cache::rememberForever($cache, function () {
+        $model = Ticket::query();
+        $tickets = QueryBuilder::for($model)
+            ->allowedFields(
+                'tickets.id',
+                'tickets.client_id',
+                'tickets.created_id',
+                'tickets.collaborator_id',
+                'tickets.impact_id',
+                'tickets.code',
+                'tickets.priority',
+                'tickets.type',
+                'tickets.dufy',
+                'tickets.subject',
+                'tickets.status',
+                'tickets.date_attribute_ticket',
+                'tickets.created_at',
+                'tickets.updated_at',
+                'tickets.deleted_at',
+            )
+            ->allowedIncludes(
+                'collaborator',
+                'impact',
+                'user.collaborator'
+            )
             ->allowedFilters([
                 'code',
                 'priority',
@@ -29,24 +57,12 @@ class TicketsIndexController extends Controller
                 AllowedFilter::custom('date_finish_ticket', new AllowedFinishedFilter()),
                 AllowedFilter::custom('collaborator_id', new AllowedNullableFilter()),
             ])
-            ->with([
-                'image',
-                'client.corporate.image',
-                'collaborator.email',
-                'collaborator.image',
-                'comments' => function ($builder) {
-                    return $builder->with([
-                        'collaborator.image',
-                        'collaborator.email'
-                    ])
-                        ->orderBy('created_at', 'desc');
-                },
-                'impact',
-                'user.collaborator.image'
-            ])
-            ->orderBy('code', 'desc')
-            ->whereYear('created_at', date('Y'))
-            ->limit(150)
-            ->get(), 200);
+            ->orderBy('tickets.code', 'desc')
+            ->whereYear('tickets.created_at', date('Y'))
+            ->paginate(15)
+            ->appends(request()->query());
+        // });
+        // }
+        return response()->json($tickets, 200);
     }
 }
