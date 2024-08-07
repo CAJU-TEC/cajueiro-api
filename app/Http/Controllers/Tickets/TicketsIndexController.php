@@ -39,9 +39,10 @@ class TicketsIndexController extends Controller
                 'tickets.deleted_at',
             )
             ->allowedIncludes(
-                'collaborator',
+                'collaborator.image',
                 'impact',
-                'user.collaborator'
+                'user.collaborator',
+                'client.corporate.image',
             )
             ->allowedFilters([
                 'code',
