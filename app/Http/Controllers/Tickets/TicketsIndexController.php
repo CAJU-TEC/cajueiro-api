@@ -5,10 +5,7 @@ namespace App\Http\Controllers\Tickets;
 use App\Filters\AllowedFinishedFilter;
 use App\Filters\AllowedNullableFilter;
 use App\Http\Controllers\Controller;
-use App\Models\Comment;
 use App\Models\Ticket;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -20,12 +17,8 @@ class TicketsIndexController extends Controller
     }
 
     //
-    public function __invoke(Request $request)
+    public function __invoke()
     {
-        // $cache = $request->cache ?? 'tickets';
-        // $tickets = Cache::get($cache);
-        // if (Cache::has($cache)) {
-        // $tickets = Cache::rememberForever($cache, function () {
         $model = Ticket::query();
         $tickets = QueryBuilder::for($model)
             ->allowedFields(
@@ -61,8 +54,6 @@ class TicketsIndexController extends Controller
             ->whereYear('tickets.created_at', date('Y'))
             ->paginate(15)
             ->appends(request()->query());
-        // });
-        // }
         return response()->json($tickets, 200);
     }
 }
