@@ -6,8 +6,6 @@ use App\Events\TicketsListPusher;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Ticket\TicketStoreRequest;
 use App\Models\Ticket;
-use App\Notifications\EmailTicketNotification;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\HtmlString;
 use DB;
 use Illuminate\Support\Str;
@@ -92,9 +90,7 @@ class TicketsStoreController extends Controller
         'ods' => 'vnd.oasis.opendocument.spreadsheet',
     ];
 
-    public function __construct(private Ticket $ticket)
-    {
-    }
+    public function __construct(private Ticket $ticket) {}
 
     public function __invoke(TicketStoreRequest $request)
     {
@@ -131,9 +127,9 @@ class TicketsStoreController extends Controller
                 'code' => $dataForSend->code
             ];
 
-            Notification::route('mail', [
-                $dataForSend->client->email->description => $dataForSend->client->full_name,
-            ])->notify(new EmailTicketNotification($project));
+            // Notification::route('mail', [
+            //     $dataForSend->client->email->description => $dataForSend->client->full_name,
+            // ])->notify(new EmailTicketNotification($project));
 
             event(new TicketsListPusher($dataForSend));
 
