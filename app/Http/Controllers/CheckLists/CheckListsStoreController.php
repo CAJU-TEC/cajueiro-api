@@ -1,28 +1,25 @@
 <?php
 
-namespace App\Http\Controllers\JobPlans;
+namespace App\Http\Controllers\CheckLists;
 
 use App\Http\Controllers\Controller;
-use App\Models\JobPlans;
+use App\Models\CheckList;
 use Illuminate\Http\Request;
 
-class JobPlansStoreController extends Controller
+class CheckListsStoreController extends Controller
 {
     //
-    public function __construct(private JobPlans $jobPlans)
-    {
-    }
+    public function __construct(private CheckList $checkLists) {}
 
     public function __invoke(Request $request)
     {
-        $jobPlans = $this->jobPlans->create($request->only([
+        $checkLists = $this->checkLists->create($request->only([
             'description',
-            'color',
-            'value',
-            'time',
-            'note',
+            'status',
+            'started',
+            'delivered',
         ]));
 
-        return response()->json($jobPlans, 201);
+        return response()->json($checkLists, 201);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\CheckList;
+namespace App\Http\Controllers\CheckLists;
 
 use App\Http\Controllers\Controller;
 use App\Models\CheckList;

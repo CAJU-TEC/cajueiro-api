@@ -99,17 +99,18 @@ class RouteServiceProvider extends ServiceProvider
                 ->name('comments.')
                 ->group(base_path('routes/comments.php'));
 
+            // checklists
+            Route::middleware('api', 'auth:sanctum')
+                ->prefix('api')
+                ->name('checklists.')
+                ->group(base_path('routes/checkLists.php'));
+
             // email
             Route::middleware('api')
                 ->prefix('api')
                 ->name('emails.')
                 ->group(base_path('routes/emails.php'));
 
-            // checklists
-            Route::middleware('api')
-                ->prefix('api')
-                ->name('checklists.')
-                ->group(base_path('routes/checkLists.php'));
 
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));

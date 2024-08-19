@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Tickets\TicketsDestroyController;
+use App\Http\Controllers\Tickets\TicketsFindStatusController;
 use App\Http\Controllers\Tickets\TicketsGraphDashboardController;
 use App\Http\Controllers\Tickets\TicketsIndexController;
 use App\Http\Controllers\Tickets\TicketsKanbanController;
@@ -16,6 +17,7 @@ Route::post('tickets/graphDashboard/', TicketsGraphDashboardController::class)->
 Route::get('tickets/notifications/', TicketsNotificationsController::class)->name('notifications')->middleware(['role_or_permission:super-admin|tickets.index']);
 
 Route::get('tickets', TicketsIndexController::class)->name('index')->middleware(['role_or_permission:super-admin|tickets.index']);
+Route::post('tickets/ticketsFindStatus', TicketsFindStatusController::class)->name('ticketsFindStatus')->middleware(['role_or_permission:super-admin|tickets.index']);
 Route::get('tickets/{ticket}', TicketsShowController::class)->name('show')->middleware(['role_or_permission:super-admin|tickets.show']);
 Route::get('tickets/kanban/{ticket}', TicketsKanbanController::class)->name('kanban');
 Route::post('tickets', TicketsStoreController::class)->name('store')->middleware(['role_or_permission:super-admin|tickets.store']);

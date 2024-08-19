@@ -1,28 +1,27 @@
 <?php
 
-namespace App\Http\Controllers\JobPlans;
+namespace App\Http\Controllers\CheckLists;
 
 use App\Http\Controllers\Controller;
-use App\Models\JobPlans;
+use App\Models\CheckList;
 use DomainException;
 use Illuminate\Http\Request;
 
-class JobPlansUpdateController extends Controller
+class CheckListsUpdateController extends Controller
 {
     //
     public function __invoke(Request $request, $id)
     {
         try {
-            $jobPlans = JobPlans::find($id);
-            $jobPlans->update($request->only([
+            $checkList = CheckList::find($id);
+            $checkList->update($request->only([
                 'description',
-                'color',
-                'value',
-                'time',
-                'note',
+                'status',
+                'started',
+                'delivered',
             ]));
 
-            return response()->json($jobPlans, 200);
+            return response()->json($checkList, 200);
         } catch (DomainException $e) {
             return response()->json($e->getMessage(), 422);
         }

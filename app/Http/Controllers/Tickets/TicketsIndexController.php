@@ -4,17 +4,17 @@ namespace App\Http\Controllers\Tickets;
 
 use App\Filters\AllowedFinishedFilter;
 use App\Filters\AllowedNullableFilter;
+use App\Filters\AllowedNullableOrIdFilter;
 use App\Http\Controllers\Controller;
 use App\Models\Ticket;
+use Illuminate\Database\Eloquent\Builder;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class TicketsIndexController extends Controller
 {
 
-    public function __construct(private Ticket $tickets)
-    {
-    }
+    public function __construct(private Ticket $tickets) {}
 
     //
     public function __invoke()
@@ -51,8 +51,8 @@ class TicketsIndexController extends Controller
                 AllowedFilter::custom('date_finish_ticket', new AllowedFinishedFilter()),
                 AllowedFilter::custom('collaborator_id', new AllowedNullableFilter()),
             ])
-            ->orderBy('tickets.code', 'desc')
             ->whereYear('tickets.created_at', date('Y'))
+            ->orderBy('tickets.code', 'desc')
             ->paginate(15)
             ->appends(request()->query());
         return response()->json($tickets, 200);

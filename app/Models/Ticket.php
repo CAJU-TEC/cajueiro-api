@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Support\Facades\Storage;
 
 class Ticket extends Init
@@ -74,6 +75,11 @@ class Ticket extends Init
     public function collaborator()
     {
         return $this->belongsTo(Collaborator::class);
+    }
+
+    public function clientCorporate(): HasOneThrough
+    {
+        return $this->hasOneThrough(Corporate::class, Client::class, 'id', 'id', 'client_id', 'corporate_id');
     }
 
     public function impact()

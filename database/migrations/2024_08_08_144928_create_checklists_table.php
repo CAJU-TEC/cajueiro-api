@@ -22,6 +22,8 @@ return new class extends Migration
                 'progress',
                 'completed',
             ])->default('open');
+            $table->timestamp('started');
+            $table->timestamp('delivered');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -34,6 +36,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('checklists');
+        Schema::dropIfExists('check_lists');
     }
 };
