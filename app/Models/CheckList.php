@@ -10,4 +10,14 @@ class CheckList extends Init
         'code',
         'description',
     ];
+
+    public function collaborators()
+    {
+        return $this->belongsToMany(Collaborator::class);
+    }
+
+    public function tickets()
+    {
+        return $this->belongsToMany(Ticket::class);
+    }
 }

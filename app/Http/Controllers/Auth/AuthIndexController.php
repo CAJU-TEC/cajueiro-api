@@ -9,13 +9,15 @@ use Illuminate\Http\Request;
 class AuthIndexController extends Controller
 {
     //
-    public function __construct(private User $users)
-    {
-    }
+    public function __construct(private User $users) {}
 
     //
     public function __invoke()
     {
-        return response()->json($this->users->with(['collaborator', 'roles', 'tickets'])->latest()->get(), 200);
+        return response()->json($this->users->with([
+            'collaborator',
+            // 'roles',
+            // 'tickets'
+        ])->latest()->get(), 200);
     }
 }
