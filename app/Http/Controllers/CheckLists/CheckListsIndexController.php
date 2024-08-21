@@ -13,6 +13,19 @@ class CheckListsIndexController extends Controller
     //
     public function __invoke()
     {
-        return response()->json($this->checklist->latest()->get(), 200);
+        return response()->json(
+            $this->checklist
+                ->with([
+                    'collaborators',
+                    'tickets'
+                ])
+                ->withCount([
+                    'collaborators',
+                    'tickets'
+                ])
+                ->latest()
+                ->get(),
+            200
+        );
     }
 }

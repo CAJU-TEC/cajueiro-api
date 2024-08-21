@@ -22,8 +22,8 @@ return new class extends Migration
                 'progress',
                 'completed',
             ])->default('open');
-            $table->timestamp('started');
-            $table->timestamp('delivered');
+            $table->date('started');
+            $table->date('delivered');
             $table->timestamps();
             $table->softDeletes();
         });
