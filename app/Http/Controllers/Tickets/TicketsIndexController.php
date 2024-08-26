@@ -53,7 +53,7 @@ class TicketsIndexController extends Controller
             ])
             // ->whereYear('tickets.created_at', date('Y'))
             ->orderBy('tickets.code', 'desc')
-            ->paginate(45)
+            ->paginate(50)
             ->appends(request()->query());
         return response()->json($tickets, 200);
     }
