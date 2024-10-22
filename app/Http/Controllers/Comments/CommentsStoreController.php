@@ -2,19 +2,13 @@
 
 namespace App\Http\Controllers\Comments;
 
-use App\Events\NotificationTicketsPusher;
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
 use App\Models\Ticket;
 use App\Models\User;
-use App\Notifications\EmailTicketNotification;
-use App\Notifications\TicketsSuccessful;
-use App\Supports\Arrays\Unique;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\HtmlString;
 use Exception;
 use Illuminate\Http\Request;
-use Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -113,23 +107,23 @@ class CommentsStoreController extends Controller
 
             $comment = $ticket->comments()->create($data);
 
-            $dataForSend = $ticket->with(['client'])->find($ticket->id);
-            $project = [
-                'subject' => '[#' . $dataForSend->code . '] ' . $dataForSend->subject,
-                'greeting' => 'Olá, ' . $dataForSend->client->full_name,
-                'body' => ($dataForSend->priority == 'yes') ? 'PRIORIDADE' : '',
-                'status' => self::STATUS[$data['status']],
-                'ticketText' => new HtmlString($data['description']),
-                'thanks' => 'Obrigado pela sua atenção.',
-                'actionText' => 'RESPONDER PROTOCOLO',
-                'warning' => 'Caso tenha a necessidade de responder esse e-mail(protocolo). Por favor, faça-o clicando no link acima.',
-                'actionURL' => route('tickets.index'),
-                'priority' => $dataForSend->priority,
-                'id' => $dataForSend->id,
-                'code' => $dataForSend->code,
-                'created_at' => $dataForSend->created_at->format('d/m/Y \à\s H:i\h'),
-                'created_comment_at' => $comment->created_at->format('d/m/Y \à\s H:i\h')
-            ];
+            // $dataForSend = $ticket->with(['client'])->find($ticket->id);
+            // $project = [
+            //     'subject' => '[#' . $dataForSend->code . '] ' . $dataForSend->subject,
+            //     'greeting' => 'Olá, ' . $dataForSend->client->full_name,
+            //     'body' => ($dataForSend->priority == 'yes') ? 'PRIORIDADE' : '',
+            //     'status' => self::STATUS[$data['status']],
+            //     'ticketText' => new HtmlString($data['description']),
+            //     'thanks' => 'Obrigado pela sua atenção.',
+            //     'actionText' => 'RESPONDER PROTOCOLO',
+            //     'warning' => 'Caso tenha a necessidade de responder esse e-mail(protocolo). Por favor, faça-o clicando no link acima.',
+            //     'actionURL' => route('tickets.index'),
+            //     'priority' => $dataForSend->priority,
+            //     'id' => $dataForSend->id,
+            //     'code' => $dataForSend->code,
+            //     'created_at' => $dataForSend->created_at->format('d/m/Y \à\s H:i\h'),
+            //     'created_comment_at' => $comment->created_at->format('d/m/Y \à\s H:i\h')
+            // ];
 
             // if ($dataForSend->status === 'done') {
             //     Notification::route('mail', [
