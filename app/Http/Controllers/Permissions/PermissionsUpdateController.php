@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Groups;
+namespace App\Http\Controllers\Permissions;
 
 use App\Http\Controllers\Controller;
 use App\Models\Role;
 use DomainException;
 use Illuminate\Http\Request;
 
-class GroupsUpdateController extends Controller
+class PermissionsUpdateController extends Controller
 {
     public function __invoke(Request $request, $id)
     {

@@ -1,17 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Groups;
+namespace App\Http\Controllers\Permissions;
 
 use App\Http\Controllers\Controller;
 use App\Models\Role;
 use Exception;
 
-class GroupsDestroyController extends Controller
+class PermissionsDestroyController extends Controller
 {
     //
-    public function __construct(private Role $group)
-    {
-    }
+    public function __construct(private Role $group) {}
 
     public function __invoke($id)
     {

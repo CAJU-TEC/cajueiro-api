@@ -89,9 +89,7 @@ class CommentsStoreController extends Controller
     ];
 
 
-    public function __construct(private Comment $comment, private Ticket $ticket)
-    {
-    }
+    public function __construct(private Comment $comment, private Ticket $ticket) {}
 
     public function __invoke(Request $request)
     {
@@ -133,17 +131,17 @@ class CommentsStoreController extends Controller
                 'created_comment_at' => $comment->created_at->format('d/m/Y \à\s H:i\h')
             ];
 
-            if ($dataForSend->status === 'done') {
-                Notification::route('mail', [
-                    $dataForSend->client->email->description => $dataForSend->client->full_name,
-                ])->notify(new EmailTicketNotification($project));
-            }
-            $collaboratorsForNotifications = (new Unique())->collaborators($ticket->comments);
-            foreach ($collaboratorsForNotifications as $collaborator) {
-                Notification::send($collaborator->collaborator->user, new TicketsSuccessful($project));
-            }
-            // return $collaboratorsForNotifications;
-            event(new NotificationTicketsPusher($collaboratorsForNotifications));
+            // if ($dataForSend->status === 'done') {
+            //     Notification::route('mail', [
+            //         $dataForSend->client->email->description => $dataForSend->client->full_name,
+            //     ])->notify(new EmailTicketNotification($project));
+            // }
+            // $collaboratorsForNotifications = (new Unique())->collaborators($ticket->comments);
+            // foreach ($collaboratorsForNotifications as $collaborator) {
+            //     Notification::send($collaborator->collaborator->user, new TicketsSuccessful($project));
+            // }
+            // // return $collaboratorsForNotifications;
+            // event(new NotificationTicketsPusher($collaboratorsForNotifications));
 
             if ($request->image) {
                 foreach ($request->image as $imagem) {

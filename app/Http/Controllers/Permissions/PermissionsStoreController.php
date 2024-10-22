@@ -1,17 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Groups;
+namespace App\Http\Controllers\Permissions;
 
 use App\Http\Controllers\Controller;
 use App\Models\Role;
 use Exception;
 use Illuminate\Http\Request;
 
-class GroupsStoreController extends Controller
+class PermissionsStoreController extends Controller
 {
-    public function __construct(private Role $groups)
-    {
-    }
+    public function __construct(private Role $groups) {}
 
     public function __invoke(Request $request)
     {
