@@ -31,7 +31,7 @@ class EventServiceProvider extends ServiceProvider
     {
         //
         Ticket::observe(TicketObserver::class);
-        CheckList::observe(CheckList::class);
+        // CheckList::observe(CheckList::class);
     }
 
     /**
