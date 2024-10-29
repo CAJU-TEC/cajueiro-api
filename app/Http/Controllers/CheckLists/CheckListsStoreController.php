@@ -20,11 +20,11 @@ class CheckListsStoreController extends Controller
             'delivered',
         ]));
 
-        $collaboratorsWithTimestamps = $this->convertArrayWithTimestamps($request->input('collaborators'));
-        $ticketsWithTimestamps = $this->convertArrayWithTimestamps($request->input('tickets'));
+        // $collaboratorsWithTimestamps = $this->convertArrayWithTimestamps($request->input('collaborators'));
+        // $ticketsWithTimestamps = $this->convertArrayWithTimestamps($request->input('tickets'));
 
-        $checkLists->collaborators()->sync($collaboratorsWithTimestamps);
-        $checkLists->tickets()->sync($ticketsWithTimestamps);
+        // $checkLists->collaborators()->sync($collaboratorsWithTimestamps);
+        // $checkLists->tickets()->sync($ticketsWithTimestamps);
 
         return response()->json($checkLists, 201);
     }
