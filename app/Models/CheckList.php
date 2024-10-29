@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\CheckListStatus;
 use App\Supports\DatesTimes\DateSupport;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -18,6 +19,10 @@ class CheckList extends Init
         'status',
         'started',
         'delivered'
+    ];
+
+    protected $casts = [
+        'status' => CheckListStatus::class
     ];
 
     public function collaborators(): BelongsToMany

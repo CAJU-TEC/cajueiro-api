@@ -18,10 +18,11 @@
         td {
             padding: 8px;
             border: 1px solid #ddd;
+            font-size: 12px;
         }
 
         th {
-            background-color: #f2f2f2;
+            background-color: #cecccc;
         }
 
         /* Estilos para as células de cabeçalho */
@@ -35,10 +36,6 @@
             font-size: 14px;
         }
 
-        th:first-child {
-            width: 50%;
-        }
-
         tr td:first-child {
             text-align: left;
         }
@@ -48,29 +45,71 @@
             display: block;
         }
 
-        tbody tr:nth-child(2) td {
-            text-align: center;
-            padding: 20px;
-            font-size: 4rem;
-            font-weight: bold;
-        }
-
-        tbody tr:nth-child(2) td div {
-            text-align: center;
-            padding: 5px;
-            font-size: 1rem;
-            font-weight: 100;
-        }
-
         tfoot tr td {
             text-align: left;
-            font-size: 12px;
+            font-size: 10px;
         }
     </style>
 </head>
 
 <body>
-    HERE
+    <table>
+        <thead>
+            <tr>
+                <th colspan="8">Ficheiro de controle de protocolos</th>
+            </tr>
+            <tr>
+                <th>Código: <?php echo e($payload['checkList']->code); ?></th>
+                <th>Descrição: <?php echo e($payload['checkList']->description ?? 'Sem nomeclatura'); ?></th>
+                <th>Responsáve(is):
+                    <?php echo e($payload['checkList']->collaborators->map(function ($r) {return $r->fullname;})->implode(', ')); ?>
+
+                </th>
+                <th style="background-color: <?php echo e($payload['checkList']->status['color']); ?>">Situação:
+                    <?php echo e($payload['checkList']->status['description']); ?></th>
+                <th>Período: <?php echo e($payload['checkList']->started); ?> à <?php echo e($payload['checkList']->delivered); ?></th>
+            </tr>
+        </thead>
+    </table>
+    <br />
+    <table>
+        <thead>
+            <th width="5%">CÓD</th>
+            <th width="30%">PROTOCOLO</th>
+            <th width="10%">DEV</th>
+            <th width="10%">STATUS</th>
+            <th width="10%">TEMPO DE EXECUÇÃO</th>
+            <th width="10%">INÍCIO(h)</th>
+            <th width="10%">FIM(h)</th>
+            <th width="10%">QUANTO TEMPO LEVOU</th>
+        </thead>
+        <tbody>
+            <?php $__empty_1 = true; $__currentLoopData = $payload['checkList']->tickets; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ticket): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                <tr>
+                    <td style="text-align: center;"><?php echo e($ticket->code); ?></td>
+                    <td style="text-align: left;"><?php echo e($ticket->subject); ?></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                <tr>
+                    <td colspan="8">Sem tickets no momento</td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="8">
+                    Relatório impresso em: <?php echo e(Carbon\Carbon::now()->format('d/m/Y à\s H:i:s')); ?>
+
+                </td>
+            </tr>
+        </tfoot>
+    </table>
 </body>
 
 </html>
