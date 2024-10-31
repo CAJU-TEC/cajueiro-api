@@ -10,15 +10,31 @@ class TicketsFindStatusController extends Controller
 {
     public function __invoke(Request $request)
     {
-        $tickets = Ticket::query()
-            ->with('clientCorporate')
-            ->whereHas('clientCorporate', function ($query) use ($request) {
-                $query->where('corporates.id', $request->params['corporate_id']['id']);
-            })
-            ->whereIn('status', array_map(function ($item) {
+        $tickets = Ticket::query();
+
+        if ($request->has('params.status') && !empty($request->params['status'])) {
+            $statusIds = array_map(function ($item) {
                 return $item['id'];
-            }, $request->params['status']))
-            ->get();
-        return response()->json($tickets, 200);
+            }, $request->params['status']);
+
+            $tickets->whereIn('status', $statusIds);
+        }
+
+        if ($request->has('params.corporate_id') && !empty($request->params['corporate_id'])) {
+            $corporateIds = array_map(function ($item) {
+                return $item['id'];
+            }, $request->params['corporate_id']);
+
+            $tickets->whereHas('clientCorporate', function ($query) use ($corporateIds) {
+                $query->whereIn('corporates.id', $corporateIds);
+            });
+        }
+
+
+        if (empty($request->params['status']) && empty($request->params['corporate_id'])) {
+            return response()->json(null, 200);
+        }
+
+        return response()->json($tickets->get(), 200);
     }
 }

@@ -22,9 +22,8 @@ class CheckListsStoreController extends Controller
 
         $collaboratorsWithTimestamps = $this->convertArrayWithTimestamps($request->input('collaborators'));
         $ticketsWithTimestamps = $this->convertArrayWithTimestamps($request->input('tickets'));
-
-        $checkLists->collaborators()->sync($collaboratorsWithTimestamps);
-        $checkLists->tickets()->sync($ticketsWithTimestamps);
+        $checkLists->collaborators()->syncWithoutDetaching($collaboratorsWithTimestamps);
+        $checkLists->tickets()->syncWithoutDetaching($ticketsWithTimestamps);
 
         return response()->json($checkLists, 201);
     }
