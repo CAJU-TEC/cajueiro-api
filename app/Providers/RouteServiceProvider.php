@@ -111,6 +111,11 @@ class RouteServiceProvider extends ServiceProvider
                 ->name('emails.')
                 ->group(base_path('routes/emails.php'));
 
+            // email
+            Route::middleware('api')
+                ->prefix('api')
+                ->name('duties.')
+                ->group(base_path('routes/duties.php'));
 
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));

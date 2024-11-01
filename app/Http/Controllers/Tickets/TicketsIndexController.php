@@ -50,6 +50,7 @@ class TicketsIndexController extends Controller
                 'status',
                 AllowedFilter::custom('date_finish_ticket', new AllowedFinishedFilter()),
                 AllowedFilter::custom('collaborator_id', new AllowedNullableFilter()),
+                AllowedFilter::scope('starts_before')
             ])
             // ->whereYear('tickets.created_at', date('Y'))
             ->orderBy('tickets.code', 'desc')

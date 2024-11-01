@@ -60,6 +60,11 @@ class Collaborator extends Init
         return $this->morphOne(Email::class, 'emailable');
     }
 
+    public function duty()
+    {
+        return $this->morphOne(Duty::class, 'dutyable');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -78,31 +83,31 @@ class Collaborator extends Init
     protected function birth(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => (new DateSupport())->convertAmericaForBrazil($value),
-            set: fn ($value) => (new DateSupport())->convertBrazilForAmerica($value),
+            get: fn($value) => (new DateSupport())->convertAmericaForBrazil($value),
+            set: fn($value) => (new DateSupport())->convertBrazilForAmerica($value),
         );
     }
 
     protected function entrance(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => (new DateSupport())->convertAmericaForBrazil($value),
-            set: fn ($value) => (new DateSupport())->convertBrazilForAmerica($value),
+            get: fn($value) => (new DateSupport())->convertAmericaForBrazil($value),
+            set: fn($value) => (new DateSupport())->convertBrazilForAmerica($value),
         );
     }
 
     protected function egress(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => (new DateSupport())->convertAmericaForBrazil($value),
-            set: fn ($value) => (new DateSupport())->convertBrazilForAmerica($value),
+            get: fn($value) => (new DateSupport())->convertAmericaForBrazil($value),
+            set: fn($value) => (new DateSupport())->convertBrazilForAmerica($value),
         );
     }
 
     protected function cpf(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => (new DocumentsSupport())->processReturnDocument((new Cpf()), $value),
+            get: fn($value) => (new DocumentsSupport())->processReturnDocument((new Cpf()), $value),
             // set: fn ($value) => (new DocumentsSupport())->processDocument((new Cpf()), $value),
         );
     }
@@ -110,7 +115,7 @@ class Collaborator extends Init
     protected function cnpj(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => (new DocumentsSupport())->processReturnDocument((new Cnpj()), $value),
+            get: fn($value) => (new DocumentsSupport())->processReturnDocument((new Cnpj()), $value),
             // set: fn ($value) => (new DocumentsSupport())->processDocument((new Cnpj()), $value),
         );
     }

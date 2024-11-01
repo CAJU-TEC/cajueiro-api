@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Support\Facades\Storage;
 use App\Enums\Tickets\Status;
+use Carbon\Carbon;
 use InvalidArgumentException;
 
 class Ticket extends Init
@@ -100,6 +101,11 @@ class Ticket extends Init
     public function impact()
     {
         return $this->belongsTo(Impact::class);
+    }
+
+    public function scopeStartsBefore(Builder $query, $date): Builder
+    {
+        return $query->whereDate('created_at', '=', Carbon::parse($date)->toDateString());
     }
 
     protected static function boot()
