@@ -30,9 +30,9 @@ enum Status: string
     public function color(): string
     {
         return match ($this) {
-            self::OPEN => 'green',          // verde para 'aberto'
-            self::PROGRESS => 'yellow',     // amarelo para 'executando'
-            self::COMPLETED => 'gray',      // cinza para 'finalizado'
+            self::BACKLOG => 'green',          // verde para 'aberto'
+            self::TODO => 'yellow',     // amarelo para 'executando'
+            self::ANALYZE => 'gray',      // cinza para 'finalizado'
             self::DEVELOPMENT => 'blue',    // azul para 'em desenvolvimento'
             self::TEST => 'purple',         // roxo para 'em teste'
             self::PENDING => 'orange',      // laranja para 'pendente'
