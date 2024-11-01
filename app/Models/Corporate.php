@@ -10,6 +10,7 @@ class Corporate extends Init
     protected $guarded = [];
 
     protected $fillable = [
+        'initials',
         'first_name',
         'last_name',
         'address'

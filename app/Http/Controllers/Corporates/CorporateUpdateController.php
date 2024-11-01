@@ -14,6 +14,7 @@ class CorporateUpdateController extends Controller
         try {
             $corporate = Corporate::with(['image', 'email'])->find($id);
             $corporate->update($request->only([
+                'initials',
                 'first_name',
                 'last_name',
                 'address'

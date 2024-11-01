@@ -10,14 +10,13 @@ use Illuminate\Http\Request;
 
 class CorporateStoreController extends Controller
 {
-    public function __construct(private Corporate $corporate)
-    {
-    }
+    public function __construct(private Corporate $corporate) {}
 
     public function __invoke(CorporateStoreRequest $request)
     {
         try {
             $corporate = $this->corporate->create($request->only([
+                'initials',
                 'first_name',
                 'last_name',
                 'address'
