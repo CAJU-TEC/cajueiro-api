@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Corporates;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Corporate\CorporateUpdateRequest;
 use App\Models\Corporate;
+use Carbon\Carbon;
 use DomainException;
+use Ramsey\Uuid\Rfc4122\UuidV3;
 
 class CorporateUpdateController extends Controller
 {
@@ -29,7 +31,7 @@ class CorporateUpdateController extends Controller
             }
 
             if ($request->image) {
-                $name = $corporate->id . '.' . explode(
+                $name = UuidV3::uuid4() . '.' . explode(
                     '/',
                     explode(
                         ':',
@@ -42,7 +44,6 @@ class CorporateUpdateController extends Controller
                 )[1];
                 $uri = storage_path('app/public/images/') . $name;
                 \Image::make($request->image)->save($uri);
-
                 $corporate->image()->updateOrCreate(
                     ['imageable_id' => $corporate->id],
                     ['uri' => $name]
