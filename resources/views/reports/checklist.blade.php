@@ -49,6 +49,43 @@
             text-align: left;
             font-size: 10px;
         }
+
+        .font-format::before {
+            content: "•";
+            font-size: 1.5em;
+        }
+
+        .green {
+            color: rgb(167, 190, 167);
+        }
+
+        .yellow {
+            color: rgb(212, 212, 177);
+        }
+
+        .gray {
+            color: rgb(202, 202, 202);
+        }
+
+        .blue {
+            color: rgb(163, 163, 216);
+        }
+
+        .purple {
+            color: rgb(223, 144, 223);
+        }
+
+        .orange {
+            color: rgb(240, 210, 156);
+        }
+
+        .darkgreen {
+            color: rgb(135, 167, 135);
+        }
+
+        .teal {
+            color: rgb(153, 206, 206);
+        }
     </style>
 </head>
 
@@ -87,8 +124,11 @@
                 <tr>
                     <td style="text-align: center;">{{ $ticket->code }}</td>
                     <td style="text-align: left;">{{ $ticket->subject }}</td>
-                    <td></td>
-                    <td></td>
+                    <td>{{ $ticket->collaborator?->full_name }}</td>
+                    <td>
+                        <span class="{{ $ticket->status['color'] }} font-format"></span>
+                        {{ $ticket->status['description'] ?? '' }}
+                    </td>
                     <td></td>
                     <td></td>
                     <td></td>

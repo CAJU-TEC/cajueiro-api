@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\TicketStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,6 +32,10 @@ class Ticket extends Init
     protected $appends = [
         'letter',
         'dateFinishTicket'
+    ];
+
+    protected $casts = [
+        'status' => TicketStatus::class
     ];
 
     public function getLetterAttribute()
