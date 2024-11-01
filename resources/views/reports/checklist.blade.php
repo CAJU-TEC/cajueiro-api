@@ -110,8 +110,7 @@
     <br />
     <table>
         <thead>
-            <th width="5%">CÓD</th>
-            <th width="30%">PROTOCOLO</th>
+            <th width="40%">PROTOCOLO</th>
             <th width="10%">DEV</th>
             <th width="10%">STATUS</th>
             <th width="10%">TEMPO DE EXECUÇÃO</th>
@@ -122,8 +121,10 @@
         <tbody>
             @forelse($payload['checkList']->tickets as $ticket)
                 <tr>
-                    <td style="text-align: center;">{{ $ticket->code }}</td>
-                    <td style="text-align: left;">{{ $ticket->subject }}</td>
+                    <td style="text-align: left;">
+                        #{{ $ticket->code }} - <strong>{{ $ticket->subject }}</strong><br />
+                        Criado: {{ $ticket->created_at->format('d/m/Y') }}
+                    </td>
                     <td>{{ $ticket->collaborator?->full_name }}</td>
                     <td>
                         <span class="{{ $ticket->statusCast['color'] }} font-format"></span>
@@ -142,8 +143,10 @@
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="8">
-                    Relatório impresso em: {{ Carbon\Carbon::now()->format('d/m/Y à\s H:i:s') }}
+                <td colspan="8" style="text-align: right;">
+                    <i style="color: rgb(94, 92, 92);">Relatório impresso em:
+                        {{ Carbon\Carbon::now()->format('d/m/Y à\s H:i:s') }} por:
+                        {{ auth()->user()->name }}</i>
                 </td>
             </tr>
         </tfoot>

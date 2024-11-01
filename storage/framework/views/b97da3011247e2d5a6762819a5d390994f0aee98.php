@@ -111,8 +111,7 @@
     <br />
     <table>
         <thead>
-            <th width="5%">CÓD</th>
-            <th width="30%">PROTOCOLO</th>
+            <th width="40%">PROTOCOLO</th>
             <th width="10%">DEV</th>
             <th width="10%">STATUS</th>
             <th width="10%">TEMPO DE EXECUÇÃO</th>
@@ -123,8 +122,11 @@
         <tbody>
             <?php $__empty_1 = true; $__currentLoopData = $payload['checkList']->tickets; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ticket): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                 <tr>
-                    <td style="text-align: center;"><?php echo e($ticket->code); ?></td>
-                    <td style="text-align: left;"><?php echo e($ticket->subject); ?></td>
+                    <td style="text-align: left;">
+                        #<?php echo e($ticket->code); ?> - <strong><?php echo e($ticket->subject); ?></strong><br />
+                        Criado: <?php echo e($ticket->created_at->format('d/m/Y')); ?>
+
+                    </td>
                     <td><?php echo e($ticket->collaborator?->full_name); ?></td>
                     <td>
                         <span class="<?php echo e($ticket->statusCast['color']); ?> font-format"></span>
@@ -144,9 +146,10 @@
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="8">
-                    Relatório impresso em: <?php echo e(Carbon\Carbon::now()->format('d/m/Y à\s H:i:s')); ?>
-
+                <td colspan="8" style="text-align: right;">
+                    <i style="color: rgb(94, 92, 92);">Relatório impresso em:
+                        <?php echo e(Carbon\Carbon::now()->format('d/m/Y à\s H:i:s')); ?> por:
+                        <?php echo e(auth()->user()->name); ?></i>
                 </td>
             </tr>
         </tfoot>
