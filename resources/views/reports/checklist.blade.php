@@ -126,8 +126,8 @@
                     <td style="text-align: left;">{{ $ticket->subject }}</td>
                     <td>{{ $ticket->collaborator?->full_name }}</td>
                     <td>
-                        <span class="{{ $ticket->status['color'] }} font-format"></span>
-                        {{ $ticket->status['description'] ?? '' }}
+                        <span class="{{ $ticket->statusCast['color'] }} font-format"></span>
+                        {{ $ticket->statusCast['description'] ?? '' }}
                     </td>
                     <td></td>
                     <td></td>

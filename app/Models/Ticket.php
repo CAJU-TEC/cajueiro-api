@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use App\Casts\TicketStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Support\Facades\Storage;
+use App\Enums\Tickets\Status;
+use InvalidArgumentException;
 
 class Ticket extends Init
 {
@@ -31,12 +32,21 @@ class Ticket extends Init
 
     protected $appends = [
         'letter',
-        'dateFinishTicket'
+        'dateFinishTicket',
+        'statusCast'
     ];
 
-    // protected $casts = [
-    //     'status' => TicketStatus::class
-    // ];
+    protected $casts = [];
+
+    public function getStatusCastAttribute()
+    {
+        $status = status::tryFrom($this->status);
+
+        return $status ? [
+            'description' => $status->description(),
+            'color' => $status->color()
+        ] : null;
+    }
 
     public function getLetterAttribute()
     {

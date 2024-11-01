@@ -127,8 +127,8 @@
                     <td style="text-align: left;"><?php echo e($ticket->subject); ?></td>
                     <td><?php echo e($ticket->collaborator?->full_name); ?></td>
                     <td>
-                        <span class="<?php echo e($ticket->status['color']); ?> font-format"></span>
-                        <?php echo e($ticket->status['description'] ?? ''); ?>
+                        <span class="<?php echo e($ticket->statusCast['color']); ?> font-format"></span>
+                        <?php echo e($ticket->statusCast['description'] ?? ''); ?>
 
                     </td>
                     <td></td>
