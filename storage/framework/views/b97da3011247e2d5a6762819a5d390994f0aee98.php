@@ -33,7 +33,7 @@
 
         /* Estilos para células de dados */
         td {
-            font-size: 14px;
+            font-size: 10px;
         }
 
         tr td:first-child {
