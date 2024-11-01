@@ -34,9 +34,9 @@ class Ticket extends Init
         'dateFinishTicket'
     ];
 
-    protected $casts = [
-        'status' => TicketStatus::class
-    ];
+    // protected $casts = [
+    //     'status' => TicketStatus::class
+    // ];
 
     public function getLetterAttribute()
     {
