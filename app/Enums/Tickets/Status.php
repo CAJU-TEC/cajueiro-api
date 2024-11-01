@@ -4,9 +4,9 @@ namespace App\Enums\Tickets;
 
 enum Status: string
 {
-    case OPEN = 'backlog';
-    case PROGRESS = 'todo';
-    case COMPLETED = 'analyze';
+    case BACKLOG = 'backlog';
+    case TODO = 'todo';
+    case ANALYZE = 'analyze';
     case DEVELOPMENT = 'development';
     case TEST = 'test';
     case PENDING = 'pending';
@@ -16,9 +16,9 @@ enum Status: string
     public function description(): string
     {
         return match ($this) {
-            self::OPEN => mb_strtoupper('aberto'),
-            self::PROGRESS => mb_strtoupper('executando'),
-            self::COMPLETED => mb_strtoupper('finalizado'),
+            self::BACKLOG => mb_strtoupper('aguardando'),
+            self::TODO => mb_strtoupper('a fazer'),
+            self::ANALYZE => mb_strtoupper('analise'),
             self::DEVELOPMENT => mb_strtoupper('desenvolvimento'),
             self::TEST => mb_strtoupper('teste'),
             self::PENDING => mb_strtoupper('pendente'),
