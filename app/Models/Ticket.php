@@ -29,6 +29,7 @@ class Ticket extends Init
         'message',
         'status',
         'date_attribute_ticket',
+        'time'
     ];
 
     protected $appends = [

@@ -9,12 +9,14 @@ use App\Http\Controllers\Tickets\TicketsNotificationsController;
 use App\Http\Controllers\Tickets\TicketsPatchCollaboratorController;
 use App\Http\Controllers\Tickets\TicketsShowController;
 use App\Http\Controllers\Tickets\TicketsStoreController;
+use App\Http\Controllers\Tickets\TicketsTimeStoreController;
 use App\Http\Controllers\Tickets\TicketsUpdateController;
 use Illuminate\Support\Facades\Route;
 
 // tickets
 Route::post('tickets/graphDashboard/', TicketsGraphDashboardController::class)->name('graphDashboard')->middleware(['role_or_permission:super-admin|tickets.index']);
 Route::get('tickets/notifications/', TicketsNotificationsController::class)->name('notifications')->middleware(['role_or_permission:super-admin|tickets.index']);
+Route::patch('tickets/timeAlterDuty', TicketsTimeStoreController::class)->name('timeAlterDuty');
 
 Route::get('tickets', TicketsIndexController::class)->name('index')->middleware(['role_or_permission:super-admin|tickets.index']);
 Route::post('tickets/ticketsFindStatus', TicketsFindStatusController::class)->name('ticketsFindStatus')->middleware(['role_or_permission:super-admin|tickets.index']);

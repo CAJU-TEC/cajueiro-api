@@ -6,7 +6,7 @@ use App\Events\TicketsListPusher;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Ticket\TicketStoreRequest;
 use App\Models\Ticket;
-use Illuminate\Support\HtmlString;
+// use Illuminate\Support\HtmlString;
 use DB;
 use Illuminate\Support\Str;
 
@@ -112,20 +112,20 @@ class TicketsStoreController extends Controller
 
             $dataForSend = $ticket->with(['client'])->find($ticket->id);
 
-            $project = [
-                'subject' => '[#' . $dataForSend->code . '] ' . $dataForSend->subject,
-                'greeting' => 'Olá, ' . $dataForSend->client->full_name,
-                'body' => ($dataForSend->priority == 'yes') ? 'PRIORIDADE' : '',
-                'status' => self::STATUS[$dataForSend->status],
-                'ticketText' => new HtmlString($dataForSend->message),
-                'thanks' => 'Obrigado pela sua atenção.',
-                'actionText' => 'RESPONDER PROTOCOLO',
-                'warning' => 'Caso tenha a necessidade de responder esse e-mail(protocolo). Por favor, faça-o clicando no link acima.',
-                'actionURL' => route('tickets.index'),
-                'priority' => $dataForSend->priority,
-                'id' => $dataForSend->id,
-                'code' => $dataForSend->code
-            ];
+            // $project = [
+            //     'subject' => '[#' . $dataForSend->code . '] ' . $dataForSend->subject,
+            //     'greeting' => 'Olá, ' . $dataForSend->client->full_name,
+            //     'body' => ($dataForSend->priority == 'yes') ? 'PRIORIDADE' : '',
+            //     'status' => self::STATUS[$dataForSend->status],
+            //     'ticketText' => new HtmlString($dataForSend->message),
+            //     'thanks' => 'Obrigado pela sua atenção.',
+            //     'actionText' => 'RESPONDER PROTOCOLO',
+            //     'warning' => 'Caso tenha a necessidade de responder esse e-mail(protocolo). Por favor, faça-o clicando no link acima.',
+            //     'actionURL' => route('tickets.index'),
+            //     'priority' => $dataForSend->priority,
+            //     'id' => $dataForSend->id,
+            //     'code' => $dataForSend->code
+            // ];
 
             // Notification::route('mail', [
             //     $dataForSend->client->email->description => $dataForSend->client->full_name,
