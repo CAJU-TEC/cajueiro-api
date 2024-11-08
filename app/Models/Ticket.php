@@ -35,7 +35,8 @@ class Ticket extends Init
     protected $appends = [
         'letter',
         'dateFinishTicket',
-        'statusCast'
+        'statusCast',
+        'timeForHuman'
     ];
 
     protected $casts = [];
@@ -48,6 +49,27 @@ class Ticket extends Init
             'description' => $status->description(),
             'color' => $status->color()
         ] : null;
+    }
+
+    public function getTimeForHumanAttribute()
+    {
+        if ($this->time) {
+            $minutes = round($this->time * 60); // Converte horas para minutos com arredondamento exato
+
+            if ($minutes < 60) {
+                return "{$minutes} minutos"; // Exibe minutos para valores menores que 1 hora
+            } elseif ($minutes === 60) {
+                return '1 hora'; // Caso especial para 1 hora exata
+            } else {
+                $remainingMinutes = $minutes % 60;
+                $fullHours = floor($minutes / 60); // Horas completas
+
+                // Retorna string diferenciando entre "X horas" e "X horas e Y minutos"
+                return $remainingMinutes > 0
+                    ? "{$fullHours} hora(s) e {$remainingMinutes} minutos"
+                    : "{$fullHours} horas";
+            }
+        }
     }
 
     public function getLetterAttribute()

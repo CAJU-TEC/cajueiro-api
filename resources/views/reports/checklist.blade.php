@@ -130,8 +130,9 @@
                         <span class="{{ $ticket->statusCast['color'] }} font-format"></span>
                         {{ $ticket->statusCast['description'] ?? '' }}
                     </td>
-                    <td></td>
-                    <td></td>
+                    <td>{{ $ticket->timeForHuman ?? '' }}</td>
+                    <td>{{ $ticket->date_attribute_ticket ? \Carbon\Carbon::parse($ticket->date_attribute_ticket)->format('d/m/Y à\s H:i:s') : '' }}
+                    </td>
                     <td></td>
                     <td></td>
                 </tr>

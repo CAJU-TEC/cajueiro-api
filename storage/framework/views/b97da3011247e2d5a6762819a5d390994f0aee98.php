@@ -133,8 +133,10 @@
                         <?php echo e($ticket->statusCast['description'] ?? ''); ?>
 
                     </td>
-                    <td></td>
-                    <td></td>
+                    <td><?php echo e($ticket->timeForHuman ?? ''); ?></td>
+                    <td><?php echo e($ticket->date_attribute_ticket ? \Carbon\Carbon::parse($ticket->date_attribute_ticket)->format('d/m/Y à\s H:i:s') : ''); ?>
+
+                    </td>
                     <td></td>
                     <td></td>
                 </tr>
