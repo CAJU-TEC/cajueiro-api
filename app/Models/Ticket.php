@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Enums\Tickets\Status;
 use Carbon\Carbon;
 use InvalidArgumentException;
+use DB;
 
 class Ticket extends Init
 {
@@ -129,6 +130,13 @@ class Ticket extends Init
     public function scopeStartsBefore(Builder $query, $date): Builder
     {
         return $query->whereDate('created_at', '=', Carbon::parse($date)->toDateString());
+    }
+
+    public function scopeToday(Builder $query, $date): Builder
+    {
+        return $query->whereHas('comments', function ($q) use ($date) {
+            $q->whereDate('created_at', '=', Carbon::parse($date)->toDateString());
+        });
     }
 
     protected static function boot()
