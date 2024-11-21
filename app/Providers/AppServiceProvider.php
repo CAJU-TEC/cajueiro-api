@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         //
-        Model::preventLazyLoading(!app()->isProduction());
+        // Model::preventLazyLoading(!app()->isProduction());
         Schema::defaultStringLength(125);
     }
 }
