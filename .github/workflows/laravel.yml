@@ -17,7 +17,7 @@ jobs:
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@4.2.0
         with:
-          server: "ftp.cajutec.com.br"
+          server: "179.189.124.29"
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: "cajueiro.cajutec.com.br/api/"
+          server-dir: "/var/www/cajueiro/prod/api/"
