@@ -3,8 +3,6 @@ name: Laravel
 on:
   push:
     branches: ["main"]
-  pull_request:
-    branches: ["main"]
 
 jobs:
   web-deploy:
@@ -20,4 +18,5 @@ jobs:
           server: "179.189.124.29"
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          port: 22
           server-dir: "/var/www/cajueiro/prod/api/"
