@@ -2,7 +2,7 @@ name: Laravel
 
 on:
   push:
-    branches: ["main"]
+    branches: ["l3software"]
 
 jobs:
   web-deploy:
