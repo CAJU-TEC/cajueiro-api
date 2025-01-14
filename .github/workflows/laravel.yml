@@ -15,8 +15,8 @@ jobs:
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@4.2.0
         with:
-          server: "179.189.124.29"
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
+          server: "l3software.com.br"
+          username: ${{ secrets.FTP_USERNAME_L3 }}
+          password: ${{ secrets.FTP_PASSWORD_L3 }}
           port: 22
-          server-dir: "/var/www/cajueiro/prod/api/"
+          server-dir: "/cajueiro.l3sistemas.com.br/api/"
