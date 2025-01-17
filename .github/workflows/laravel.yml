@@ -3,7 +3,7 @@ name: Deploy Producao
 on:
   push:
     branches:
-      - "l3sofware"
+      - "l3software"
 
 jobs:
   deploy-prod:
