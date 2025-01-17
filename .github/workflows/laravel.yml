@@ -1,22 +1,35 @@
-name: Laravel
+name: Deploy Producao
 
 on:
   push:
-    branches: ["l3software"]
+    branches:
+      - "l3sofware"
 
 jobs:
-  web-deploy:
-    name: 🎉 Deploy
+  deploy-prod:
+    name: SSH Action on prod_apresentacao
     runs-on: ubuntu-latest
     steps:
-      - name: 🚚 Get latest code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: 📂 Sync files
-        uses: SamKirkland/FTP-Deploy-Action@4.2.0
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
         with:
-          server: "l3software.com.br"
-          username: ${{ secrets.FTP_USERNAME_L3 }}
-          password: ${{ secrets.FTP_PASSWORD_L3 }}
-          port: 22
-          server-dir: "/cajueiro.l3sistemas.com.br/api/"
+          host: 64.23.181.219
+          username: ${{ vars.USERNAME_L3 }}
+          port: ${{ vars.PORT_L3 }}
+          key: ${{ secrets.SSH_KEY_L3 }}
+          script: |
+            set -e
+            eval "$(ssh-agent -s)"
+            ssh-add ~/.ssh/id_ed25519_api
+            cd /var/www/api/public_html
+            git stash
+            git fetch origin
+            branch_name=${{ github.ref }}
+            branch_name=${branch_name/refs\/heads\//}
+            git checkout -f $branch_name
+            git pull origin $branch_name
+            chmod +x deploy.sh
+            ./deploy.sh
+            git stash apply || true
