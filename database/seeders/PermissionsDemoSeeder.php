@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PermissionsDemoSeeder extends Seeder
 {
