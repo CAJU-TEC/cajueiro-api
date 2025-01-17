@@ -6,6 +6,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 use Illuminate\Support\Str;
+use Faker\Factory;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
