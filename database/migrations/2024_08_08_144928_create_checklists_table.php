@@ -13,6 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('check_lists')) {
+            return;
+        }
+        
         Schema::create('check_lists', function (Blueprint $table) {
             $table->uuid('id');
             $table->integer('code')->autoIncrement();
