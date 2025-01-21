@@ -20,7 +20,7 @@ composer update --no-dev --prefer-dist --optimize-autoloader
 php artisan migrate --force --seed
 
 # Exclui os arquivos de armazenamento padrão
-php artisan storage:unlink
+# php artisan storage:unlink
 
 # Cria os arquivos de armazenamento padrão
 php artisan storage:link
