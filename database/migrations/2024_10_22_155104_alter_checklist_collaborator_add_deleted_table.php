@@ -13,7 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        //
+        if (Schema::hasColumn('check_list_collaborator', 'deleted_at')) {
+            return;
+        }
         Schema::table('check_list_collaborator', function (Blueprint $table) {
             $table->softDeletes();
         });
