@@ -13,6 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('duties')) {
+            return;
+        }
         Schema::create('duties', function (Blueprint $table) {
             $table->uuid('id');
             $table->string('description')->nullable();
