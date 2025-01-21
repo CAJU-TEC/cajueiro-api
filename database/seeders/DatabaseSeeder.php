@@ -12,7 +12,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ImpactsSeeder::class,
             JobPlansSeeder::class,
-            PermissionsDemoSeeder::class,
+            // PermissionsDemoSeeder::class,
             TicketsPermissionsSeeder::class,
             CollaboratorPermissionsSeeder::class,
             ClientsPermissionsSeeder::class,
