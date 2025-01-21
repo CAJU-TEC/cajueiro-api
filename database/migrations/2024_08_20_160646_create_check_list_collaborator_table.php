@@ -13,6 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('check_list_collaborator')) {
+            return;
+        }
         Schema::create('check_list_collaborator', function (Blueprint $table) {
             $table->uuid('check_list_id')->nullable();
             $table->uuid('collaborator_id')->nullable();
