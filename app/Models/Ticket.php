@@ -26,6 +26,7 @@ class Ticket extends Init
         'priority',
         'type',
         'dufy',
+        'validated',
         'subject',
         'message',
         'status',
