@@ -105,6 +105,7 @@ class TicketsStoreController extends Controller
                 'priority',
                 'type',
                 'dufy',
+                'validated',
                 'subject',
                 'message',
                 'status',
