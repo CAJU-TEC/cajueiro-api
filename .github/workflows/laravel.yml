@@ -13,10 +13,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: 📂 Sync files
-        uses: SamKirkland/FTP-Deploy-Action@4.2.0
+        uses: SamKirkland/FTP-Deploy-Action@4.3.2
         with:
-          server: "cajueiroapi.cajutec.com.br"
-          username: ${{ secrets.FTP_USERNAME }}
+          server: "cajueiro.cajutec.com.br"
+          username: ${{ vars.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          port: 21
-          server-dir: "/cajueiro.cajutec.com.br/api/"
+          server-dir: "cajueiro.cajutec.com.br/api/"
