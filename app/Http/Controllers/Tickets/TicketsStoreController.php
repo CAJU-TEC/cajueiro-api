@@ -102,6 +102,7 @@ class TicketsStoreController extends Controller
                 'collaborator_id',
                 'impact_id',
                 'code',
+                'platform',
                 'priority',
                 'type',
                 'dufy',
