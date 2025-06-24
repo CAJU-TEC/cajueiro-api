@@ -25,6 +25,7 @@ class TicketsIndexController extends Controller
         'tickets.type',
         'tickets.dufy',
         'tickets.validated',
+        'tickets.platform',
         'tickets.subject',
         'tickets.status',
         'tickets.date_attribute_ticket',
