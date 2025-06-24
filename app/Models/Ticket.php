@@ -24,6 +24,7 @@ class Ticket extends Init
         'created_id',
         'code',
         'priority',
+        'platform',
         'type',
         'dufy',
         'validated',
