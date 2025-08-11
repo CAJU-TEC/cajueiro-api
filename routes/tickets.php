@@ -7,6 +7,7 @@ use App\Http\Controllers\Tickets\TicketsIndexController;
 use App\Http\Controllers\Tickets\TicketsKanbanController;
 use App\Http\Controllers\Tickets\TicketsNotificationsController;
 use App\Http\Controllers\Tickets\TicketsPatchCollaboratorController;
+use App\Http\Controllers\Tickets\TicketsPatchTesterController;
 use App\Http\Controllers\Tickets\TicketsShowController;
 use App\Http\Controllers\Tickets\TicketsStoreController;
 use App\Http\Controllers\Tickets\TicketsTimeStoreController;
@@ -26,3 +27,4 @@ Route::post('tickets', TicketsStoreController::class)->name('store')->middleware
 Route::put('tickets/{ticket}', TicketsUpdateController::class)->name('update')->middleware(['role_or_permission:super-admin|tickets.update']);
 Route::delete('tickets/{ticket}', TicketsDestroyController::class)->name('destroy')->middleware(['role_or_permission:super-admin|tickets.destroy']);
 Route::patch('tickets/{ticket}', TicketsPatchCollaboratorController::class)->name('patchCollaborator');
+Route::patch('tickets/{ticket}/tester', TicketsPatchTesterController::class)->name('patchTester');

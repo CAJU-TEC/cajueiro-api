@@ -20,6 +20,7 @@ class TicketsShowController extends Controller
             'images',
             'user.collaborator.image',
             'collaborator.image',
+            'tester.image',
             'comments' => function ($builder) {
                 return $builder->with([
                     'collaborator.image',

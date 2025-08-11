@@ -43,6 +43,7 @@ class TicketsPatchCollaboratorController extends Controller
             $ticket->update();
             return response()->json(Ticket::with([
                 'collaborator',
+                'tester',
                 'comments',
             ])->find($id), 200);
             DB::commit();

@@ -17,6 +17,7 @@ class TicketsUpdateController extends Controller
             $ticket->update($request->only([
                 'client_id',
                 'collaborator_id',
+                'tester_id',
                 'impact_id',
                 'code',
                 'code',

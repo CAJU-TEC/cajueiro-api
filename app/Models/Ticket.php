@@ -20,6 +20,7 @@ class Ticket extends Init
     protected $fillable = [
         'client_id',
         'collaborator_id',
+        'tester_id',
         'impact_id',
         'created_id',
         'code',
@@ -115,6 +116,11 @@ class Ticket extends Init
     }
 
     public function collaborator()
+    {
+        return $this->belongsTo(Collaborator::class);
+    }
+
+    public function tester()
     {
         return $this->belongsTo(Collaborator::class);
     }
