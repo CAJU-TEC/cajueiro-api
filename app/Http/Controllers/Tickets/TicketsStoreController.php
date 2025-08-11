@@ -6,9 +6,10 @@ use App\Events\TicketsListPusher;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Ticket\TicketStoreRequest;
 use App\Models\Ticket;
+use Illuminate\Support\Facades\DB;
 // use Illuminate\Support\HtmlString;
-use DB;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
 
 class TicketsStoreController extends Controller
 {
@@ -90,14 +91,16 @@ class TicketsStoreController extends Controller
         'ods' => 'vnd.oasis.opendocument.spreadsheet',
     ];
 
-    public function __construct(private Ticket $ticket) {}
+    public function __construct(private Ticket $ticket)
+    {
+    }
 
     public function __invoke(TicketStoreRequest $request)
     {
         try {
             DB::beginTransaction();
 
-            $ticket = $this->ticket->create($request->only([
+            $data = $request->only([
                 'client_id',
                 'collaborator_id',
                 'impact_id',
@@ -110,48 +113,65 @@ class TicketsStoreController extends Controller
                 'subject',
                 'message',
                 'status',
-            ]));
+            ]);
 
-            $dataForSend = $ticket->with(['client'])->find($ticket->id);
-
-            // $project = [
-            //     'subject' => '[#' . $dataForSend->code . '] ' . $dataForSend->subject,
-            //     'greeting' => 'Olá, ' . $dataForSend->client->full_name,
-            //     'body' => ($dataForSend->priority == 'yes') ? 'PRIORIDADE' : '',
-            //     'status' => self::STATUS[$dataForSend->status],
-            //     'ticketText' => new HtmlString($dataForSend->message),
-            //     'thanks' => 'Obrigado pela sua atenção.',
-            //     'actionText' => 'RESPONDER PROTOCOLO',
-            //     'warning' => 'Caso tenha a necessidade de responder esse e-mail(protocolo). Por favor, faça-o clicando no link acima.',
-            //     'actionURL' => route('tickets.index'),
-            //     'priority' => $dataForSend->priority,
-            //     'id' => $dataForSend->id,
-            //     'code' => $dataForSend->code
-            // ];
-
-            // Notification::route('mail', [
-            //     $dataForSend->client->email->description => $dataForSend->client->full_name,
-            // ])->notify(new EmailTicketNotification($project));
-
-            event(new TicketsListPusher($dataForSend));
-
-            if ($request->image) {
-                foreach ($request->image as $imagem) {
-                    $name = $this->nomearArquivo($imagem);
-                    $uri = storage_path('app/public/images/') . $name;
-
-                    $this->uploadFiles($imagem, $uri);
-                    $ticket->image()->create([
-                        'uri' => $name
-                    ]);
-                }
+            if ($data['platform'] == 'web_mobile') {
+                $data['platform'] = 'mobile';
+                $ticket = $this->execute($data, $request);
+                $data['platform'] = 'web';
             }
+            
+            $ticket = $this->execute($data, $request);
+
             DB::commit();
-            return response()->json($ticket, 201);
+            return response()->json($ticket, Response::HTTP_CREATED);
         } catch (\Exception $th) {
             DB::rollBack();
-            throw $th->getMessage();
+            return response()->json(['error' => $th->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    protected function execute(array $data, TicketStoreRequest $request)
+    {
+        $ticket = $this->ticket->create($data);
+
+        $dataForSend = $ticket->with(['client'])->find($ticket->id);
+
+        // $project = [
+        //     'subject' => '[#' . $dataForSend->code . '] ' . $dataForSend->subject,
+        //     'greeting' => 'Olá, ' . $dataForSend->client->full_name,
+        //     'body' => ($dataForSend->priority == 'yes') ? 'PRIORIDADE' : '',
+        //     'status' => self::STATUS[$dataForSend->status],
+        //     'ticketText' => new HtmlString($dataForSend->message),
+        //     'thanks' => 'Obrigado pela sua atenção.',
+        //     'actionText' => 'RESPONDER PROTOCOLO',
+        //     'warning' => 'Caso tenha a necessidade de responder esse e-mail(protocolo). Por favor, faça-o clicando no link acima.',
+        //     'actionURL' => route('tickets.index'),
+        //     'priority' => $dataForSend->priority,
+        //     'id' => $dataForSend->id,
+        //     'code' => $dataForSend->code
+        // ];
+
+        // Notification::route('mail', [
+        //     $dataForSend->client->email->description => $dataForSend->client->full_name,
+        // ])->notify(new EmailTicketNotification($project));
+
+        event(new TicketsListPusher($dataForSend));
+
+        if ($request->image) {
+            foreach ($request->image as $imagem) {
+                $name = $this->nomearArquivo($imagem);
+                $uri = storage_path('app/public/images/') . $name;
+
+                $this->uploadFiles($imagem, $uri);
+                $ticket->image()->create([
+                    'uri' => $name
+                ]);
+            }
+        }
+
+        return $ticket;
+
     }
 
     protected function uploadFiles($upload, $uri)
