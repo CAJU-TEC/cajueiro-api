@@ -120,7 +120,7 @@ class TicketsStoreController extends Controller
                 $ticket = $this->execute($data, $request);
                 $data['platform'] = 'web';
             }
-            
+
             $ticket = $this->execute($data, $request);
 
             DB::commit();
@@ -171,7 +171,6 @@ class TicketsStoreController extends Controller
         }
 
         return $ticket;
-
     }
 
     protected function uploadFiles($upload, $uri)
