@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tickets;
 
 use App\Http\Controllers\Controller;
+use App\Models\Collaborator;
 use App\Models\Ticket;
 use App\Models\User;
 use Exception;
@@ -24,15 +25,17 @@ class TicketsPatchCollaboratorController extends Controller
         try {
             DB::beginTransaction();
 
-            $collaborator = User::with(['collaborator'])->find(auth()->user()->id);
+            $idUsuario = Collaborator::with('user')->find($request->get('collaborator_id'))->user->id ?? auth()->user()->id;
+
+            $collaborator = User::with(['collaborator'])->find($idUsuario);
 
             $tickets = Ticket::where('collaborator_id', $collaborator->collaborator->id)
                 ->where('status', 'pending')
                 ->count();
 
-            if ($tickets > 0) {
+            if ($tickets > 0 && !$request->has('collaborator_id')) {
                 return response()->json([
-                    'message' => 'Você possui protocolos pendentes'
+                    'message' => "{$collaborator->collaborator->first_name} possui protocolos pendentes"
                 ], 500);
             }
 

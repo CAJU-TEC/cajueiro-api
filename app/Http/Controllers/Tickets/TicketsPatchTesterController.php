@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tickets;
 
 use App\Http\Controllers\Controller;
+use App\Models\Collaborator;
 use App\Models\Ticket;
 use App\Models\User;
 use Exception;
@@ -21,7 +22,10 @@ class TicketsPatchTesterController extends Controller
     public function __invoke(Request $request, $id)
     {
         try {
-            $collaborator = User::with(['collaborator'])->find(auth()->user()->id);
+
+            $idUsuario = Collaborator::with('user')->find($request->get('collaborator_id'))->user->id ?? auth()->user()->id;
+
+            $collaborator = User::with(['collaborator'])->find($idUsuario);
 
             $ticket = Ticket::find($id);
             $ticket->tester_id = $collaborator->collaborator->id ?? NULL;
