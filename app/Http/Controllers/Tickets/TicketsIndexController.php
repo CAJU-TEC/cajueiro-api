@@ -19,6 +19,7 @@ class TicketsIndexController extends Controller
         'tickets.client_id',
         'tickets.created_id',
         'tickets.collaborator_id',
+        'tickets.tester_id',
         'tickets.impact_id',
         'tickets.code',
         'tickets.priority',
@@ -36,6 +37,7 @@ class TicketsIndexController extends Controller
 
     private const ALLOWED_INCLUDES = [
         'collaborator.image',
+        'tester',
         'impact',
         'user.collaborator',
         'client.corporate.image',
