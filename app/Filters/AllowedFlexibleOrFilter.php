@@ -7,7 +7,7 @@ use Spatie\QueryBuilder\Filters\Filter;
 
 class AllowedFlexibleOrFilter implements Filter
 {
-    public function __construct(private array $fields = ['collaborator_id', 'tester_id'])
+    public function __construct(private array $fields = ['collaborator_id', 'tester_id', 'created_id'])
     {
         $this->fields = $fields;
     }
