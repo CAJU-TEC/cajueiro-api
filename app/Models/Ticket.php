@@ -117,7 +117,7 @@ class Ticket extends Init
 
     public function collaborator()
     {
-        return $this->belongsTo(Collaborator::class);
+        return $this->belongsTo(Collaborator::class, 'collaborator_id');
     }
 
     public function tester()
