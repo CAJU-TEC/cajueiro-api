@@ -23,7 +23,12 @@ class ReportService
         [$start, $end] = $this->getDateRange($month, $year);
 
         $tickets = Ticket::select('created_id', DB::raw('COUNT(*) as total'))
-            ->with('user:id,name')
+            ->with([
+                'user.collaborator' => function ($q) {
+                    $q->select('id', 'user_id', 'first_name')
+                        ->whereNull('deleted_at');
+                }
+            ])
             ->whereNull('deleted_at')
             ->whereBetween('created_at', [$start, $end])
             ->groupBy('created_id')
@@ -31,7 +36,7 @@ class ReportService
             ->get();
 
         return $tickets->map(fn($t) => [
-            'nome' => optional($t->user)->name ?? 'Desconhecido',
+            'nome' => optional(optional($t->user)->collaborator)->first_name ?? 'Desconhecido',
             'total' => (int) $t->total,
         ])->toArray();
     }
@@ -62,6 +67,7 @@ class ReportService
             'total' => (int) $t->externos + (int) $t->internos,
         ])->toArray();
     }
+
 
     // === DEVELOPMENT ===
     public function getDevTicketsCountByCollaborator(?int $month = null, ?int $year = null): array

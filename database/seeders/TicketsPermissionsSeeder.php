@@ -32,26 +32,22 @@ class TicketsPermissionsSeeder extends Seeder
                 // 'tickets.edit',
                 // 'tickets.update',
             ],
+            'reports' => [
+                'reports.support',
+                'reports.development',
+                'reports.qa',
+            ],
         ];
 
-        $insertPermissions = fn ($role) => collect($permissionsByRole[$role])
-            ->map(fn ($name) => Permission::firstOrCreate(['name' => $name, 'guard_name' => 'web']))
+        $insertPermissions = fn($role) => collect($permissionsByRole[$role])
+            ->map(fn($name) => Permission::firstOrCreate(['name' => $name, 'guard_name' => 'web']))
             ->toArray();
 
         $permissionIdsByRole = [
             'tickets.*' => $insertPermissions('tickets'),
             'tickets.programadores' => $insertPermissions('tickets.programadores'),
+            'reports.*' => $insertPermissions('reports'),
         ];
-
-        $user = \App\Models\User::firstOrCreate([
-            'name' => 'Atendente',
-            'email' => 'atendente@atendente.com',
-        ], [
-            'name' => 'Atendente',
-            'email' => 'atendente@atendente.com',
-            'password' => 'password' //password
-        ]);
-        $user->givePermissionTo('tickets.index');
 
 
         foreach ($permissionIdsByRole as $role => $permissions) {

@@ -25,18 +25,18 @@ class PermissionsDemoSeeder extends Seeder
         // gets all permissions via Gate::before rule; see AuthServiceProvider
 
         // create demo users
-        $user = \App\Models\User::factory()->create([
-            'name' => 'Programador',
-            'email' => 'programador@programador.com',
-            'password' => 'password'
-        ]);
+        // $user = \App\Models\User::factory()->create([
+        //     'name' => 'Programador',
+        //     'email' => 'programador@programador.com',
+        //     'password' => 'password'
+        // ]);
 
-        $user = \App\Models\User::factory()->create([
-            'name' => 'Super-Admin',
-            'email' => 'superadmin@superadmin.com',
-            'password' => 'mqnGsd9LPB0ElTN9yTsKer8tGNwrxUqo'
-        ]);
-        $superAdmin = Role::create(['name' => 'super-admin']);
-        $user->assignRole($superAdmin);
+        // $user = \App\Models\User::factory()->create([
+        //     'name' => 'Super-Admin',
+        //     'email' => 'superadmin@superadmin.com',
+        //     'password' => 'mqnGsd9LPB0ElTN9yTsKer8tGNwrxUqo'
+        // ]);
+        // $superAdmin = Role::create(['name' => 'super-admin']);
+        // $user->assignRole($superAdmin);
     }
 }
