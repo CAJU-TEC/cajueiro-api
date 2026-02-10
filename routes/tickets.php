@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Tickets\TicketsControlByClientController;
+use App\Http\Controllers\Tickets\TicketsControlMetricsController;
 use App\Http\Controllers\Tickets\TicketsDestroyController;
 use App\Http\Controllers\Tickets\TicketsFindStatusController;
 use App\Http\Controllers\Tickets\TicketsGraphDashboardController;
@@ -18,6 +20,10 @@ use Illuminate\Support\Facades\Route;
 Route::post('tickets/graphDashboard/', TicketsGraphDashboardController::class)->name('graphDashboard')->middleware(['role_or_permission:super-admin|tickets.index']);
 Route::get('tickets/notifications/', TicketsNotificationsController::class)->name('notifications')->middleware(['role_or_permission:super-admin|tickets.index']);
 Route::patch('tickets/timeAlterDuty', TicketsTimeStoreController::class)->name('timeAlterDuty');
+
+// Control - Tickets agrupados por cliente
+Route::get('tickets/control/by-client', TicketsControlByClientController::class)->name('controlByClient')->middleware(['role_or_permission:super-admin|tickets.index']);
+Route::get('tickets/control/metrics', TicketsControlMetricsController::class)->name('controlMetrics')->middleware(['role_or_permission:super-admin|tickets.index']);
 
 Route::get('tickets', TicketsIndexController::class)->name('index')->middleware(['role_or_permission:super-admin|tickets.index']);
 Route::post('tickets/ticketsFindStatus', TicketsFindStatusController::class)->name('ticketsFindStatus')->middleware(['role_or_permission:super-admin|tickets.index']);

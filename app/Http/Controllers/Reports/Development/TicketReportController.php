@@ -26,4 +26,11 @@ class TicketReportController extends Controller
             $this->reportService->getDevAverageCompletionTimeByCollaborator($request->get('month'), $request->get('year'))
         );
     }
+
+    public function yearlyReport(Request $request)
+    {
+        return response()->json(
+            $this->reportService->getYearlyDevelopmentReport($request->get('year'))
+        );
+    }
 }
