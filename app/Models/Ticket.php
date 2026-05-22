@@ -8,12 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Support\Facades\Storage;
 use App\Enums\Tickets\Status;
+use App\Traits\HasTelegramNotifications;
 use Carbon\Carbon;
 use InvalidArgumentException;
 use DB;
 
 class Ticket extends Init
 {
+    use HasTelegramNotifications;
+
 
     protected $guarded = [];
 
