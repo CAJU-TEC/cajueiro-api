@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasTelegramNotifications;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class Comment extends Init
 {
+    use HasTelegramNotifications;
+
 
     protected $guarded = [];
     protected $keyType = 'string';
