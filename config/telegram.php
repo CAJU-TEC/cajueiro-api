@@ -6,15 +6,15 @@ return [
 
     'chats' => [
         'devs' => [
-            'chat_id'   => env('TELEGRAM_CHAT_DEVS'),
+            'chat_id' => env('TELEGRAM_CHAT_DEVS'),
             'thread_id' => env('TELEGRAM_THREAD_DEVS'),
         ],
         'gestores' => [
-            'chat_id'   => env('TELEGRAM_CHAT_GESTORES'),
+            'chat_id' => env('TELEGRAM_CHAT_GESTORES'),
             'thread_id' => env('TELEGRAM_THREAD_GESTORES'),
         ],
         'suporte' => [
-            'chat_id'   => env('TELEGRAM_CHAT_SUPORTE'),
+            'chat_id' => env('TELEGRAM_CHAT_SUPORTE'),
             'thread_id' => env('TELEGRAM_THREAD_SUPORTE'),
         ],
     ],
@@ -31,19 +31,24 @@ return [
                 $subject = $model->subject ?? '—';
 
                 if ($event === 'created') {
-                    $model->refresh()->load('user');
+                    $model->refresh()->load(['user.collaborator', 'collaborator', 'tester']);
                     $subject = $model->subject ?? '—';
-                    $criador = $model->user?->name ?? '—';
-                    $validacao = $model->validated === 'yes' ? 'Validado' : 'Não validar';
+                    $criador = $model->user?->collaborator?->first_name ?? $model->user?->name ?? '—';
+                    $desenvolvedor = $model->collaborator?->first_name ?? '—';
+                    $qa = $model->tester?->first_name ?? '—';
 
-                    $lines = ["*Protocolo Criado 🆕 *", "#{$model->code} — {$subject}"];
+                    $lines = [
+                        "*Criação 🆕*",
+                        "{$criador} criou o *#{$model->code} {$subject}*",
+                    ];
 
                     if ($model->dufy === 'yes') {
-                        $lines[] = "*PLANTÃO* 🟢";
+                        $lines[] = "🟢 PLANTÃO";
                     }
 
-                    $lines[] = "*VALIDAÇÃO:* {$validacao}";
-                    $lines[] = "*CRIADOR:* {$criador}";
+                    if ($model->validated === 'yes') {
+                        $lines[] = "✅ Validação";
+                    }
 
                     return implode("\n", $lines);
                 }
@@ -53,7 +58,7 @@ return [
                         return null;
                     }
 
-                    $model->load(['collaborator', 'tester', 'user']);
+                    $model->load(['collaborator', 'tester', 'user.collaborator']);
 
                     $statusEmoji = match ($model->status) {
                         'backlog' => '🟢',
@@ -67,21 +72,27 @@ return [
 
                     $statusEnum = \App\Enums\Tickets\Status::tryFrom($model->status);
                     $statusDesc = $statusEnum?->description() ?? $model->status ?? '—';
-                    $desenvolvedor = $model->collaborator?->full_name ?? '—';
-                    $qa = $model->tester?->full_name ?? '—';
-                    $criador = $model->user?->name ?? '—';
+                    $desenvolvedor = $model->collaborator?->first_name ?? '—';
+                    $qa = $model->tester?->first_name ?? '—';
+                    $criador = $model->user?->collaborator?->first_name ?? $model->user?->name ?? '—';
 
-                    $plantao = $model->dufy === 'yes' ? '🟢 Sim' : '🔴 Não';
+                    $updater = \Illuminate\Support\Facades\Auth::user()?->load('collaborator');
+                    $updaterName = $updater?->collaborator?->first_name ?? $updater?->name ?? '—';
 
-                    return implode("\n", [
+                    $lines = [
                         "*Atualização 🔄*",
-                        "*Protocolo:* #{$model->code} — {$subject}",
-                        "*PLANTÃO:* {$plantao}",
-                        "*STATUS:* {$statusEmoji} {$statusDesc}",
-                        "*DESENVOLVEDOR:* {$desenvolvedor}",
-                        "*QA:* {$qa}",
-                        "*CRIADOR:* {$criador}",
-                    ]);
+                        "{$updaterName} enviou *#{$model->code} {$subject}* para *{$statusDesc}* {$statusEmoji}",
+                    ];
+
+                    if ($model->dufy === 'yes') {
+                        $lines[] = "🟢 PLANTÃO";
+                    }
+
+                    $lines[] = "*DESENVOLVEDOR:* {$desenvolvedor}";
+                    $lines[] = "*QA:* {$qa}";
+                    $lines[] = "*CRIADOR:* {$criador}";
+
+                    return implode("\n", $lines);
                 }
 
                 return null;
