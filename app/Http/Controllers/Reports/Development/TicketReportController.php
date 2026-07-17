@@ -33,4 +33,11 @@ class TicketReportController extends Controller
             $this->reportService->getYearlyDevelopmentReport($request->get('year'))
         );
     }
+
+    public function finishedWithoutPending(Request $request)
+    {
+        return response()->json(
+            $this->reportService->getDevFinishedTicketsWithoutPending($request->get('month'), $request->get('year'))
+        );
+    }
 }

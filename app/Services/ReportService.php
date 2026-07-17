@@ -156,6 +156,73 @@ class ReportService
     }
 
     /**
+     * Protocolos finalizados no mês que NÃO receberam nenhuma pendência.
+     * Mostra quem fez e o tempo de execução (dias entre a atribuição e o
+     * último comentário de status "done", já que date_finish_ticket é
+     * sobrescrito a cada interação e não é confiável).
+     */
+    public function getDevFinishedTicketsWithoutPending(?int $month = null, ?int $year = null): array
+    {
+        [$start, $end] = $this->getDateRange($month, $year);
+
+        $finalizacoes = DB::table('comments')
+            ->select('commentable_id', DB::raw('MAX(created_at) as data_finalizacao'))
+            ->where('commentable_type', Ticket::class)
+            ->where('status', 'done')
+            ->whereNull('deleted_at')
+            ->groupBy('commentable_id');
+
+        // Último "test" feito pelo próprio desenvolvedor (collaborator_id do ticket),
+        // não por QA/outros que também comentam com status "test".
+        $execucoes = DB::table('comments')
+            ->select('commentable_id', 'collaborator_id', DB::raw('MAX(created_at) as data_teste'))
+            ->where('commentable_type', Ticket::class)
+            ->where('status', 'test')
+            ->whereNull('deleted_at')
+            ->groupBy('commentable_id', 'collaborator_id');
+
+        return DB::table('tickets')
+            ->joinSub($finalizacoes, 'finalizacoes', 'tickets.id', '=', 'finalizacoes.commentable_id')
+            ->leftJoinSub($execucoes, 'execucoes', function ($join) {
+                $join->on('tickets.id', '=', 'execucoes.commentable_id')
+                    ->on('tickets.collaborator_id', '=', 'execucoes.collaborator_id');
+            })
+            ->join('collaborators', 'collaborators.id', '=', 'tickets.collaborator_id')
+            ->select(
+                'tickets.code as codigo',
+                'tickets.subject as protocolo',
+                'tickets.dufy as dufy',
+                'collaborators.first_name as colaborador',
+                DB::raw('TIMESTAMPDIFF(MINUTE, tickets.date_attribute_ticket, execucoes.data_teste) as tempo_execucao'),
+                DB::raw('TIMESTAMPDIFF(MINUTE, tickets.date_attribute_ticket, finalizacoes.data_finalizacao) as tempo_vida')
+            )
+            ->where('tickets.status', 'done')
+            ->whereNull('tickets.deleted_at')
+            ->whereNull('collaborators.deleted_at')
+            ->whereBetween('finalizacoes.data_finalizacao', [$start, $end])
+            ->whereNotIn('tickets.collaborator_id', $this->excludedIds)
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('comments as c')
+                    ->whereColumn('c.commentable_id', 'tickets.id')
+                    ->where('c.commentable_type', Ticket::class)
+                    ->where('c.status', 'pending')
+                    ->whereNull('c.deleted_at');
+            })
+            ->orderBy('finalizacoes.data_finalizacao', 'desc')
+            ->get()
+            ->map(fn($item) => [
+                'codigo'         => (int) $item->codigo,
+                'protocolo'      => $item->protocolo,
+                'colaborador'    => $item->colaborador ?? 'Desconhecido',
+                'tempo_execucao' => $item->tempo_execucao !== null ? (int) $item->tempo_execucao : null,
+                'tempo_vida'     => (int) $item->tempo_vida,
+                'dufy'           => $item->dufy === 'yes',
+            ])
+            ->toArray();
+    }
+
+    /**
      * Relatório anual completo de desenvolvimento para retrospectiva
      */
     public function getYearlyDevelopmentReport(?int $year = null): array

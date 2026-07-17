@@ -14,6 +14,7 @@ Route::prefix('reports')->group(function () {
     // Desenvolvimento
     Route::get('development/quantidade', [DevReport::class, 'countByCollaborator']);
     Route::get('development/tempo-medio', [DevReport::class, 'averageCompletionTime']);
+    Route::get('development/protocolos-sem-pendencia', [DevReport::class, 'finishedWithoutPending']);
 
     // QA
     Route::get('qa/tickets-por-qa', [QAReport::class, 'byQA']);
