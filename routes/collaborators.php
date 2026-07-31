@@ -6,10 +6,12 @@ use App\Http\Controllers\Collaborators\CollaboratorsStoreController;
 use App\Http\Controllers\Collaborators\CollaboratorsUpdateController;
 use App\Http\Controllers\Collaborators\CollaboratorsDestroyController;
 use App\Http\Controllers\Collaborators\CollaboratorsSyncDutyController;
+use App\Http\Controllers\Collaborators\CollaboratorsBirthdaysReportController;
 use Illuminate\Support\Facades\Route;
 
 // collaborators
 Route::get('collaborators', CollaboratorsIndexController::class)->name('index')->middleware(['role_or_permission:super-admin|collaborators.index']);
+Route::get('collaborators/birthdays/report', CollaboratorsBirthdaysReportController::class)->name('birthdays.report')->middleware(['role_or_permission:super-admin|collaborators.index']);
 Route::get('collaborators/{collaborator}', CollaboratorsShowController::class)->name('show')->middleware(['role_or_permission:super-admin|collaborators.show']);
 Route::post('collaborators/sync-duty', CollaboratorsSyncDutyController::class)->name('sync-duty');
 Route::post('collaborators', CollaboratorsStoreController::class)->name('store')->middleware(['role_or_permission:super-admin|collaborators.store']);
