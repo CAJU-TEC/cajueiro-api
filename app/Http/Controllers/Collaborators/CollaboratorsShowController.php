@@ -14,7 +14,7 @@ class CollaboratorsShowController extends Controller
 
     public function __invoke($id)
     {
-        $collaborator = $this->collaborator->with(['email', 'user'])->findOrFail($id);
+        $collaborator = $this->collaborator->with(['email', 'user', 'jobplan', 'team'])->findOrFail($id);
         return response()->json($collaborator, 200);
     }
 }

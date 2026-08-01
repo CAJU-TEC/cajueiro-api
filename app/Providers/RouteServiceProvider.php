@@ -63,6 +63,18 @@ class RouteServiceProvider extends ServiceProvider
                 ->name('jobPlans.')
                 ->group(base_path('routes/jobPlans.php'));
 
+            // teams
+            Route::middleware(['api', 'auth:sanctum'])
+                ->prefix('api')
+                ->name('teams.')
+                ->group(base_path('routes/teams.php'));
+
+            // trails
+            Route::middleware(['api', 'auth:sanctum'])
+                ->prefix('api')
+                ->name('trails.')
+                ->group(base_path('routes/trails.php'));
+
             // corporates
             Route::middleware(['api', 'auth:sanctum'])
                 ->prefix('api')

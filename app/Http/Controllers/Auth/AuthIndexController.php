@@ -16,6 +16,7 @@ class AuthIndexController extends Controller
     {
         return response()->json($this->users->with([
             'collaborator',
+            'collaborator.image',
             // 'roles',
             // 'tickets'
         ])->latest()->get(), 200);

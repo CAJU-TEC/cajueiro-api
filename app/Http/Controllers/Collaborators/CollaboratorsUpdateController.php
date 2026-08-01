@@ -18,6 +18,7 @@ class CollaboratorsUpdateController extends Controller
             $collaborator = Collaborator::with(['image', 'email'])->find($id);
             $collaborator->update($request->only([
                 'jobplan_id',
+                'team_id',
                 'first_name',
                 'last_name',
                 'formation',

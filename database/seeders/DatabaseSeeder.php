@@ -16,12 +16,13 @@ class DatabaseSeeder extends Seeder
             TicketsPermissionsSeeder::class,
             CollaboratorPermissionsSeeder::class,
             ClientsPermissionsSeeder::class,
-            GroupsPermissionsSeeder::class,
             ImagesPermissionsSeeder::class,
             ImpactsPermissionsSeeder::class,
             JobPlansPermissionsSeeder::class,
             UsersPermissionsSeeder::class,
             CorporatesPermissionsSeeder::class,
+            TeamsPermissionsSeeder::class,
+            TrailsPermissionsSeeder::class,
         ]);
     }
 }
