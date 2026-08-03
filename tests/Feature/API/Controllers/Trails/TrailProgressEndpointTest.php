@@ -231,6 +231,78 @@ class TrailProgressEndpointTest extends TestCase
         $this->assertCount(1, $this->collaborator->fresh()->badges);
     }
 
+    /**
+     * O cargo pode vir da contratação, não só da trilha. Desfazer tem que
+     * devolver esse cargo, não zerar.
+     */
+    public function test_undoing_the_only_stage_restores_the_plan_from_before_the_trail()
+    {
+        $this->actingAsUserWith(['trails.advance', 'trails.index']);
+
+        $hired = $this->persist(JobPlans::create([
+            'team_id' => $this->team->id,
+            'description' => 'caju contratação',
+            'position' => 0,
+        ]));
+        $this->collaborator->update(['jobplan_id' => $hired->id]);
+
+        $this->advance($this->stageOne);
+        $this->assertSame($this->planTrainee->id, $this->collaborator->fresh()->jobplan_id);
+
+        $response = $this->deleteJson("/api/trails/stages/{$this->stageOne->id}/advance", [
+            'collaborator_id' => $this->collaborator->id,
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertSame($hired->id, $this->collaborator->fresh()->jobplan_id);
+    }
+
+    public function test_undoing_a_stage_without_job_plan_keeps_the_current_plan()
+    {
+        $this->actingAsUserWith(['trails.advance', 'trails.index']);
+
+        $stageThree = $this->persist(TrailStage::create([
+            'trail_id' => $this->trail->id,
+            'description' => 'Mentoria',
+            'position' => 3,
+            'required_count' => 1,
+        ]));
+        TrailLevel::create([
+            'trail_stage_id' => $stageThree->id,
+            'description' => 'Acompanhar um par',
+            'position' => 1,
+        ]);
+
+        $this->advance($this->stageOne);
+        $this->advance($this->stageTwo);
+        $this->advance($stageThree);
+
+        $this->assertSame($this->planJunior->id, $this->collaborator->fresh()->jobplan_id);
+
+        $this->deleteJson("/api/trails/stages/{$stageThree->id}/advance", [
+            'collaborator_id' => $this->collaborator->id,
+        ])->assertStatus(200);
+
+        // A etapa não promoveu ninguém, então não tem cargo a devolver.
+        $this->assertSame($this->planJunior->id, $this->collaborator->fresh()->jobplan_id);
+    }
+
+    public function test_undoing_a_stage_does_not_overwrite_a_plan_changed_afterwards()
+    {
+        $this->actingAsUserWith(['trails.advance', 'trails.index']);
+
+        $this->advance($this->stageOne);
+
+        // Simula promoção por outra trilha (ou edição manual do RH) depois do avanço.
+        $this->collaborator->update(['jobplan_id' => $this->planJunior->id]);
+
+        $this->deleteJson("/api/trails/stages/{$this->stageOne->id}/advance", [
+            'collaborator_id' => $this->collaborator->id,
+        ])->assertStatus(200);
+
+        $this->assertSame($this->planJunior->id, $this->collaborator->fresh()->jobplan_id);
+    }
+
     public function test_badges_endpoint_groups_by_collaborator()
     {
         $this->actingAsUserWith(['trails.advance', 'trails.index']);

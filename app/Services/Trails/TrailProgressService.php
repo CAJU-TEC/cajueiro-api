@@ -19,7 +19,8 @@ use Illuminate\Support\Str;
  * R4 - Time:      colaborador, trilha e plano-alvo precisam ser do mesmo time.
  * R5 - Badges:    derivados das etapas concluídas (ver Collaborator::getBadgesAttribute).
  * R6 - Permissão: quem concluiu é sempre registrado em `completed_by`.
- * R7 - Desfazer:  só é possível desfazer a última etapa concluída.
+ * R7 - Desfazer:  só é possível desfazer a última etapa concluída, e o cargo
+ *                 volta a ser o que era antes dela (`previous_job_plan_id`).
  */
 class TrailProgressService
 {
@@ -173,6 +174,10 @@ class TrailProgressService
 
             $payload = [
                 'job_plan_id' => $stage->job_plan_id,
+                // Cargo de antes da promoção, para o desfazer ter o que restaurar.
+                // Só faz sentido quando a etapa promove: etapa sem plano não
+                // mexe no cargo, então não tem nada a devolver.
+                'previous_job_plan_id' => $stage->job_plan_id ? $collaborator->jobplan_id : null,
                 'completed_by' => $userId,
                 'completed_at' => now(),
                 'certificate_code' => $existing->certificate_code ?? $this->generateCertificateCode(),
@@ -215,14 +220,17 @@ class TrailProgressService
         $this->assertNoLaterStageCompleted($stage, $collaborator);
 
         DB::transaction(function () use ($stage, $collaborator) {
+            // Lido antes do soft delete: é ele que sabe qual cargo esta etapa
+            // concedeu e qual o colaborador tinha antes.
+            $completion = $this->stageCompletion($stage, $collaborator);
+
             DB::table('trail_stage_collaborator')
                 ->where('trail_stage_id', $stage->id)
                 ->where('collaborator_id', $collaborator->id)
                 ->whereNull('deleted_at')
                 ->update(['deleted_at' => now()]);
 
-            $previous = $this->lastCompletedStage($stage->trail, $collaborator);
-            $collaborator->update(['jobplan_id' => $previous?->job_plan_id]);
+            $this->revertJobPlan($collaborator, $completion);
 
             DB::table('trail_collaborator')
                 ->where('trail_id', $stage->trail_id)
@@ -232,6 +240,32 @@ class TrailProgressService
         });
 
         return $stage->fresh();
+    }
+
+    /**
+     * Devolve ao colaborador o cargo que ele tinha antes desta etapa (R7).
+     *
+     * Duas guardas, e as duas existem por bug de produção:
+     *
+     * - Etapa que não concede cargo não pode mexer no cargo. O avanço só
+     *   promove quando `job_plan_id` está preenchido; o desfazer tem que ser
+     *   simétrico, senão desfazer uma etapa qualquer zerava o cargo.
+     * - Se o cargo atual não é mais o que esta etapa concedeu, alguém mudou
+     *   depois: outra trilha promoveu, ou o RH editou o colaborador na mão.
+     *   Restaurar aqui apagaria essa mudança mais recente.
+     */
+    private function revertJobPlan(Collaborator $collaborator, ?object $completion): void
+    {
+        if (!$completion || !$completion->job_plan_id) {
+            return;
+        }
+
+        if ((string) $collaborator->jobplan_id !== (string) $completion->job_plan_id) {
+            return;
+        }
+
+        // Pode ser null de verdade: quem não tinha cargo antes volta a não ter.
+        $collaborator->update(['jobplan_id' => $completion->previous_job_plan_id]);
     }
 
     /**
@@ -396,14 +430,6 @@ class TrailProgressService
                 'finished_at' => ($total > 0 && $completed >= $total) ? now() : null,
                 'updated_at' => now(),
             ]);
-    }
-
-    private function lastCompletedStage(Trail $trail, Collaborator $collaborator): ?TrailStage
-    {
-        return TrailStage::where('trail_id', $trail->id)
-            ->whereIn('id', $this->completedStageIds($trail, $collaborator))
-            ->orderByDesc('position')
-            ->first();
     }
 
     private function completedStageIds(Trail $trail, Collaborator $collaborator): array
