@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Trails\MyCajueiroController;
 use App\Http\Controllers\Trails\TrailBadgesController;
 use App\Http\Controllers\Trails\TrailCertificateController;
 use App\Http\Controllers\Trails\TrailCollaboratorsDestroyController;
@@ -32,6 +33,9 @@ Route::get('trails/mine', TrailMineController::class)->name('mine')->middleware(
 
 // badges de todos os colaboradores, para o avatar em qualquer tela
 Route::get('trails/badges', TrailBadgesController::class)->name('badges');
+
+// meu cajueiro: conquistas do colaborador; o pôster é desenhado e exportado no front
+Route::get('trails/my-cajueiro', MyCajueiroController::class)->name('cajueiro')->middleware(['role_or_permission:super-admin|trails.mine|trails.index']);
 
 // etapas
 Route::post('trails/stages/{stage}/levels', TrailLevelsStoreController::class)->name('levels.store')->middleware(['role_or_permission:super-admin|trails.update']);
