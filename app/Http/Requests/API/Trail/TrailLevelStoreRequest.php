@@ -12,20 +12,32 @@ class TrailLevelStoreRequest extends FormRequest
      * Tipos aceitos. Vive aqui e não num enum de banco: tipo novo é ajuste de
      * vocabulário, não de esquema.
      *
-     * `technical_test` só faz sentido em hard skill; `mentoring`,
-     * `presentation`, `dynamic` e `reading` só em soft. A combinação é
-     * oferecida pelo formulário, que filtra a lista pela competência
-     * escolhida — aqui a validação é só do valor em si.
+     * O campo quer dizer coisas diferentes nas duas competências, e isso é
+     * proposital. Em hard skill ele é a natureza da atividade (tarefa, curso,
+     * plataforma, teste técnico). Em soft skill é o tema da competência
+     * (comunicação, empatia...), porque esses níveis são comportamento do dia
+     * a dia — "responder a dúvida de um colega com clareza" não é uma
+     * atividade agendável, é uma postura observada. Como o formulário filtra a
+     * lista pela competência escolhida, ninguém vê as duas juntas.
+     *
+     * Manter os temas aqui também deixa o relatório do líder agrupar por tema
+     * sem precisar de campo novo.
      */
     public const TYPES = [
+        // hard skill: natureza da atividade
         'task',
         'course',
         'platform',
         'technical_test',
-        'mentoring',
-        'presentation',
-        'dynamic',
-        'reading',
+        // soft skill: tema da competência
+        'communication',
+        'empathy',
+        'emotional_intelligence',
+        'collaboration',
+        'proactivity',
+        'organization',
+        'leadership',
+        // serve às duas
         'other',
     ];
 

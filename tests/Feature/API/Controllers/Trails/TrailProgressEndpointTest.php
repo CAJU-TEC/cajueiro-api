@@ -468,13 +468,16 @@ class TrailProgressEndpointTest extends TestCase
         ])->assertStatus(422);
     }
 
-    public function test_level_accepts_soft_skill_types()
+    public function test_level_accepts_soft_skill_themes_as_type()
     {
         $this->actingAsUserWith(['trails.update', 'trails.index']);
 
-        // Tipos de soft skill nao existiam: o enum do banco so tinha os
+        // Em soft skill o type e o tema da competencia, porque esses niveis sao
+        // comportamento do dia a dia. O enum antigo do banco so tinha os tipos
         // tecnicos, e o campo virou varchar por causa disso.
-        foreach (['mentoring', 'presentation', 'dynamic', 'reading'] as $type) {
+        $temas = ['communication', 'empathy', 'emotional_intelligence', 'collaboration', 'proactivity', 'organization', 'leadership'];
+
+        foreach ($temas as $type) {
             $this->postJson("/api/trails/stages/{$this->stageTwo->id}/levels", [
                 'description' => "Nivel {$type}",
                 'skill' => 'soft',
