@@ -5,7 +5,7 @@ namespace App\Http\Requests\API\Trail;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class TrailAdvanceRequest extends FormRequest
+class TrailLevelSubmitRequest extends FormRequest
 {
     public function authorize()
     {
@@ -16,9 +16,9 @@ class TrailAdvanceRequest extends FormRequest
     {
         return [
             'collaborator_id' => 'required|uuid|exists:collaborators,id',
-            'note' => 'nullable',
-            // Nota da avaliacao do nivel (R9). Nula = concluido sem avaliar.
-            'score' => 'nullable|integer|min:0|max:100',
+            // Data URI do certificado. Opcional: nível de comportamento não
+            // tem certificado para anexar.
+            'certificate' => 'nullable|string',
         ];
     }
 
@@ -26,8 +26,7 @@ class TrailAdvanceRequest extends FormRequest
     {
         return [
             'collaborator_id' => 'colaborador',
-            'note' => 'observações',
-            'score' => 'nota',
+            'certificate' => 'certificado',
         ];
     }
 

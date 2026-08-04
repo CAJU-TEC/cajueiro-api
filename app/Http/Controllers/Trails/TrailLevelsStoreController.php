@@ -22,6 +22,7 @@ class TrailLevelsStoreController extends Controller
             'type' => $request->input('type', 'task'),
             // Padrao hard: nivel tecnico e o caso comum, soft e a excecao.
             'skill' => $request->input('skill', 'hard'),
+            'cut_score' => $request->input('cut_score', 70),
             'position' => $request->input('position', $this->nextPosition($stage)),
         ]);
 

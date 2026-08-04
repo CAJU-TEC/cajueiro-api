@@ -24,12 +24,23 @@ use Illuminate\Support\Str;
  *                 volta a ser o que era antes dela (`previous_job_plan_id`).
  * R8 - Prazo:     cada nível tem início e fim por matrícula; sem datas fica
  *                 "não iniciado" e estourar o fim só marca atrasado.
+ * R9 - Avaliação: ao concluir o nível o líder dá nota de 0 a 100 e uma
+ *                 resposta. Abaixo do `cut_score` o nível fica reprovado, mas
+ *                 continua contando para o quórum: a nota se reflete na
+ *                 porcentagem de avaliação da etapa, não na de conclusão.
+ * R10 - Envio:    o colaborador envia o nível (podendo anexar certificado) e
+ *                 ele fica aguardando avaliação. Enviar não conclui.
  */
 class TrailProgressService
 {
     public const STATE_COMPLETED = 'completed';
     public const STATE_UNLOCKED = 'unlocked';
     public const STATE_LOCKED = 'locked';
+
+    // Onde o nível está no fluxo de envio e avaliação (R9, R10).
+    public const LEVEL_PENDING = 'pending';
+    public const LEVEL_SUBMITTED = 'submitted';
+    public const LEVEL_COMPLETED = 'completed';
 
     // Estado do prazo do nível (R8).
     public const PERIOD_NOT_STARTED = 'not_started';
@@ -89,25 +100,40 @@ class TrailProgressService
     /**
      * Marca um nível como concluído e reavalia a etapa (R1 + R2).
      */
-    public function completeLevel(TrailLevel $level, Collaborator $collaborator, string $userId, ?string $note = null): TrailStage
-    {
+    public function completeLevel(
+        TrailLevel $level,
+        Collaborator $collaborator,
+        string $userId,
+        ?string $note = null,
+        ?int $score = null
+    ): TrailStage {
         $stage = $level->stage()->with('trail')->firstOrFail();
 
         $this->assertPreviousStagesCompleted($stage, $collaborator);
+
+        if (!is_null($score) && ($score < 0 || $score > 100)) {
+            throw new DomainException('A nota precisa estar entre 0 e 100.');
+        }
 
         $record = DB::table('trail_level_collaborator')
             ->where('trail_level_id', $level->id)
             ->where('collaborator_id', $collaborator->id)
             ->first();
 
-        if ($record && is_null($record->deleted_at) && !is_null($record->completed_at)) {
+        // Reavaliar um nível já concluído é caso legítimo: o líder errou a nota
+        // ou o colaborador reenviou. Sem isso o método saía cedo e a nota nova
+        // era ignorada em silêncio.
+        $reavaliando = $record && is_null($record->deleted_at) && !is_null($record->completed_at);
+
+        if ($reavaliando && is_null($score) && is_null($note)) {
             return $this->syncStageCompletion($stage, $collaborator, $userId);
         }
 
         $payload = [
             'completed_by' => $userId,
-            'completed_at' => now(),
+            'completed_at' => $reavaliando ? $record->completed_at : now(),
             'note' => $note,
+            'score' => $score,
             'deleted_at' => null,
             'updated_at' => now(),
         ];
@@ -186,6 +212,58 @@ class TrailProgressService
     }
 
     /**
+     * O colaborador envia o nível para avaliação (R10).
+     *
+     * O envio não conclui nada: marca `submitted_at` e o nível fica aguardando
+     * a nota do líder. É o que permite ao colaborador anexar o certificado do
+     * curso sem ter poder de fechar o próprio nível.
+     */
+    public function submitLevel(
+        TrailLevel $level,
+        Collaborator $collaborator,
+        string $userId,
+        ?string $certificateUri = null
+    ): TrailStage {
+        $stage = $level->stage()->with('trail')->firstOrFail();
+
+        $this->assertEnrolled($stage->trail, $collaborator);
+        $this->assertPreviousStagesCompleted($stage, $collaborator);
+
+        $record = $this->levelRecord($level, $collaborator);
+
+        if ($record && $record->completed_at) {
+            throw new DomainException('Este nível já foi concluído.');
+        }
+
+        $payload = [
+            'submitted_at' => now(),
+            'submitted_by' => $userId,
+            'updated_at' => now(),
+        ];
+
+        // Sem certificado novo o anterior é preservado: reenviar por ter
+        // esquecido de escrever algo não pode apagar o arquivo já anexado.
+        if ($certificateUri) {
+            $payload['certificate_uri'] = $certificateUri;
+        }
+
+        if ($record) {
+            DB::table('trail_level_collaborator')
+                ->where('trail_level_id', $level->id)
+                ->where('collaborator_id', $collaborator->id)
+                ->update($payload);
+        } else {
+            DB::table('trail_level_collaborator')->insert($payload + [
+                'trail_level_id' => $level->id,
+                'collaborator_id' => $collaborator->id,
+                'created_at' => now(),
+            ]);
+        }
+
+        return $stage->fresh();
+    }
+
+    /**
      * Desfaz a conclusão de um nível e reavalia a etapa.
      */
     public function undoLevel(TrailLevel $level, Collaborator $collaborator, string $userId): TrailStage
@@ -205,6 +283,7 @@ class TrailProgressService
                 'completed_at' => null,
                 'completed_by' => null,
                 'note' => null,
+                'score' => null,
                 'updated_at' => now(),
             ]);
 
@@ -375,18 +454,28 @@ class TrailProgressService
                 $completed = in_array($level->id, $completedLevelIds, true);
                 $record = $records[$level->id] ?? null;
 
+                $score = $record->score ?? null;
+
                 return [
                     'id' => $level->id,
                     'description' => $level->description,
                     'note' => $level->note,
                     'type' => $level->type,
                     'skill' => $level->skill,
+                    'cut_score' => $level->cut_score,
                     'position' => $level->position,
                     'materials' => $level->materials,
                     'completed' => $completed,
                     'starts_at' => $record->starts_at ?? null,
                     'ends_at' => $record->ends_at ?? null,
                     'period_state' => $this->periodState($record, $completed),
+                    // envio do colaborador e avaliação do líder
+                    'submitted_at' => $record->submitted_at ?? null,
+                    'certificate_uri' => $record->certificate_uri ?? null,
+                    'score' => $score,
+                    'evaluation_note' => $record->note ?? null,
+                    'reproved' => !is_null($score) && $score < $level->cut_score,
+                    'level_state' => $this->levelState($record, $completed),
                 ];
             });
 
@@ -403,7 +492,8 @@ class TrailProgressService
                 'levels' => $levels,
                 'state' => $state,
                 'completion' => $this->stageCompletion($stage, $collaborator),
-            ];
+                'submitted_levels_count' => $levels->where('level_state', self::LEVEL_SUBMITTED)->count(),
+            ] + $this->stagePercents($stage, $levels);
 
             $previousCompleted = $previousCompleted && $isCompleted;
         }
@@ -437,6 +527,40 @@ class TrailProgressService
             ->whereNull('deleted_at')
             ->whereNotNull('completed_at')
             ->first();
+    }
+
+    /**
+     * Onde o nível está no fluxo: ninguém tocou, o colaborador enviou e
+     * espera avaliação, ou o líder concluiu.
+     */
+    private function levelState(?object $record, bool $completed): string
+    {
+        if ($completed) {
+            return self::LEVEL_COMPLETED;
+        }
+
+        return $record && $record->submitted_at ? self::LEVEL_SUBMITTED : self::LEVEL_PENDING;
+    }
+
+    /**
+     * As duas porcentagens da etapa.
+     *
+     * `completion` é quanto do quórum foi cumprido — a barra de progresso de
+     * sempre. `evaluation` é a média das notas, e considera só os níveis já
+     * avaliados: com nível sem nota entrando como zero, a média despencaria e
+     * diria que o colaborador foi mal, quando na verdade ninguém corrigiu.
+     */
+    private function stagePercents(TrailStage $stage, $levels): array
+    {
+        $required = min($stage->required_count, $levels->count());
+        $done = $levels->where('completed', true)->count();
+        $scored = $levels->whereNotNull('score');
+
+        return [
+            'completion_percent' => $required > 0 ? (int) round(min($done / $required, 1) * 100) : null,
+            'evaluation_percent' => $scored->count() > 0 ? (int) round($scored->avg('score')) : null,
+            'evaluated_levels_count' => $scored->count(),
+        ];
     }
 
     /**
@@ -485,6 +609,10 @@ class TrailProgressService
                 'trail_levels.id as level_id',
                 'trail_level_collaborator.starts_at',
                 'trail_level_collaborator.ends_at',
+                'trail_level_collaborator.submitted_at',
+                'trail_level_collaborator.certificate_uri',
+                'trail_level_collaborator.score',
+                'trail_level_collaborator.note',
             ])
             ->keyBy('level_id')
             ->all();

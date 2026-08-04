@@ -18,11 +18,13 @@ class TrailLevel extends Init
         'note',
         'type',
         'skill',
+        'cut_score',
         'position',
     ];
 
     protected $casts = [
         'position' => 'integer',
+        'cut_score' => 'integer',
     ];
 
     public function stage(): BelongsTo

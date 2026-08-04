@@ -491,6 +491,142 @@ class TrailProgressEndpointTest extends TestCase
         ])->assertStatus(422);
     }
 
+    public function test_leader_completes_level_with_a_score_and_an_answer()
+    {
+        $this->actingAsUserWith(['trails.advance', 'trails.index']);
+
+        $level = $this->levelOf($this->stageOne, 0);
+
+        $response = $this->postJson("/api/trails/levels/{$level->id}/complete", [
+            'collaborator_id' => $this->collaborator->id,
+            'score' => 85,
+            'note' => 'Explicou com clareza para o time.',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('stages.0.levels.0.score', 85);
+        $response->assertJsonPath('stages.0.levels.0.evaluation_note', 'Explicou com clareza para o time.');
+        $response->assertJsonPath('stages.0.levels.0.reproved', false);
+        $response->assertJsonPath('stages.0.levels.0.level_state', 'completed');
+        $response->assertJsonPath('stages.0.evaluation_percent', 85);
+    }
+
+    /**
+     * R9: nota abaixo do corte reprova o nivel mas nao trava a etapa. O
+     * quorum conta niveis concluidos, com nota boa ou ruim.
+     */
+    public function test_score_below_the_cut_reproves_the_level_without_blocking_the_stage()
+    {
+        $this->actingAsUserWith(['trails.advance', 'trails.index']);
+
+        $this->postJson("/api/trails/levels/{$this->levelOf($this->stageOne, 0)->id}/complete", [
+            'collaborator_id' => $this->collaborator->id,
+            'score' => 40,
+        ])->assertStatus(200);
+
+        $response = $this->postJson("/api/trails/levels/{$this->levelOf($this->stageOne, 1)->id}/complete", [
+            'collaborator_id' => $this->collaborator->id,
+            'score' => 90,
+        ]);
+
+        $response->assertStatus(200);
+        // 40 esta abaixo do corte padrao de 70
+        $response->assertJsonPath('stages.0.levels.0.reproved', true);
+        $response->assertJsonPath('stages.0.levels.1.reproved', false);
+        // ... e a etapa fechou de qualquer forma, com o quorum de 2
+        $response->assertJsonPath('stages.0.state', 'completed');
+        $response->assertJsonPath('stages.0.completion_percent', 100);
+        $response->assertJsonPath('stages.0.evaluation_percent', 65);
+        $this->assertSame($this->planTrainee->id, $this->collaborator->fresh()->jobplan_id);
+    }
+
+    public function test_cut_score_is_configurable_per_level()
+    {
+        $this->actingAsUserWith(['trails.update', 'trails.advance', 'trails.index']);
+
+        $exigente = TrailLevel::where('trail_stage_id', $this->stageOne->id)->orderBy('position')->first();
+        $exigente->update(['cut_score' => 90]);
+
+        $response = $this->postJson("/api/trails/levels/{$exigente->id}/complete", [
+            'collaborator_id' => $this->collaborator->id,
+            'score' => 80,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('stages.0.levels.0.cut_score', 90);
+        // 80 passaria no corte padrao de 70, mas nao neste nivel
+        $response->assertJsonPath('stages.0.levels.0.reproved', true);
+    }
+
+    public function test_collaborator_submits_a_level_with_a_certificate()
+    {
+        $user = $this->actingAsUserWith(['trails.mine']);
+        $this->collaborator->update(['user_id' => $user->id]);
+
+        $level = $this->levelOf($this->stageOne, 0);
+        $pdf = 'data:application/pdf;base64,' . base64_encode('%PDF-1.4 certificado');
+
+        $response = $this->postJson("/api/trails/levels/{$level->id}/submit", [
+            'collaborator_id' => $this->collaborator->id,
+            'certificate' => $pdf,
+        ]);
+
+        $response->assertStatus(200);
+        // Enviar nao conclui: fica aguardando a avaliacao do lider.
+        $response->assertJsonPath('stages.0.levels.0.level_state', 'submitted');
+        $response->assertJsonPath('stages.0.levels.0.completed', false);
+        $response->assertJsonPath('stages.0.submitted_levels_count', 1);
+
+        $arquivo = $response->json('stages.0.levels.0.certificate_uri');
+        $this->assertStringEndsWith('.pdf', $arquivo);
+        $this->assertFileExists(storage_path("app/public/certificates/{$arquivo}"));
+        @unlink(storage_path("app/public/certificates/{$arquivo}"));
+    }
+
+    public function test_collaborator_cannot_submit_a_level_for_someone_else()
+    {
+        $user = $this->actingAsUserWith(['trails.mine']);
+
+        $outro = $this->persist(Collaborator::create([
+            'team_id' => $this->team->id,
+            'first_name' => 'Bruno',
+            'last_name' => 'Lima',
+        ]));
+        $this->collaborator->update(['user_id' => $user->id]);
+
+        $response = $this->postJson("/api/trails/levels/{$this->levelOf($this->stageOne, 0)->id}/submit", [
+            'collaborator_id' => $outro->id,
+        ]);
+
+        $response->assertStatus(403);
+        $this->assertSame('Você só pode enviar níveis da sua própria trilha.', $response->json());
+    }
+
+    public function test_undoing_a_level_keeps_the_submission_and_clears_the_score()
+    {
+        $this->actingAsUserWith(['trails.advance', 'trails.mine', 'trails.index']);
+
+        $level = $this->levelOf($this->stageOne, 0);
+
+        $this->postJson("/api/trails/levels/{$level->id}/submit", [
+            'collaborator_id' => $this->collaborator->id,
+        ])->assertStatus(200);
+
+        $this->postJson("/api/trails/levels/{$level->id}/complete", [
+            'collaborator_id' => $this->collaborator->id,
+            'score' => 75,
+        ])->assertStatus(200);
+
+        $response = $this->deleteJson("/api/trails/levels/{$level->id}/complete", [
+            'collaborator_id' => $this->collaborator->id,
+        ]);
+
+        $response->assertStatus(200);
+        // Desfazer desfaz a avaliacao, nao o envio: volta para a fila do lider.
+        $response->assertJsonPath('stages.0.levels.0.level_state', 'submitted');
+        $response->assertJsonPath('stages.0.levels.0.score', null);
+    }
+
     public function test_badges_endpoint_groups_by_collaborator()
     {
         $this->actingAsUserWith(['trails.advance', 'trails.index']);

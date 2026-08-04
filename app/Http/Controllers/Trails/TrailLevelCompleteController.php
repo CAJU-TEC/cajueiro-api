@@ -24,7 +24,8 @@ class TrailLevelCompleteController extends Controller
                 $level,
                 $collaborator,
                 Auth::id(),
-                $request->input('note')
+                $request->input('note'),
+                $request->filled('score') ? (int) $request->input('score') : null
             );
         } catch (DomainException $e) {
             return response()->json($e->getMessage(), 422);

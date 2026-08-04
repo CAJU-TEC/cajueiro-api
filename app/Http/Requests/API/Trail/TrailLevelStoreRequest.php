@@ -53,6 +53,8 @@ class TrailLevelStoreRequest extends FormRequest
             'note' => 'nullable',
             'type' => ['nullable', Rule::in(self::TYPES)],
             'skill' => ['nullable', Rule::in(['soft', 'hard'])],
+            // Nota de corte do nivel (R9). Sem informar fica nos 70 do banco.
+            'cut_score' => 'nullable|integer|min:0|max:100',
             'position' => 'nullable|integer|min:0',
         ];
     }
@@ -64,6 +66,7 @@ class TrailLevelStoreRequest extends FormRequest
             'note' => 'observações',
             'type' => 'tipo',
             'skill' => 'competência',
+            'cut_score' => 'nota de corte',
             'position' => 'ordem',
         ];
     }
