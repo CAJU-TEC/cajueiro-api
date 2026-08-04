@@ -15,11 +15,15 @@ class JobPlansUpdateController extends Controller
         try {
             $jobPlans = JobPlans::find($id);
             $jobPlans->update($request->only([
+                'team_id',
                 'description',
                 'color',
                 'value',
                 'time',
                 'note',
+                'badge_icon',
+                'badge_color',
+                'position',
             ]));
 
             return response()->json($jobPlans, 200);

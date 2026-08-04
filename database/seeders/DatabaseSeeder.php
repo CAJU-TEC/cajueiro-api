@@ -10,18 +10,20 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call([
+            TeamsSeeder::class,
             ImpactsSeeder::class,
             JobPlansSeeder::class,
             PermissionsDemoSeeder::class,
             TicketsPermissionsSeeder::class,
             CollaboratorPermissionsSeeder::class,
             ClientsPermissionsSeeder::class,
-            GroupsPermissionsSeeder::class,
             ImagesPermissionsSeeder::class,
             ImpactsPermissionsSeeder::class,
             JobPlansPermissionsSeeder::class,
             UsersPermissionsSeeder::class,
             CorporatesPermissionsSeeder::class,
+            TeamsPermissionsSeeder::class,
+            TrailsPermissionsSeeder::class,
         ]);
     }
 }
