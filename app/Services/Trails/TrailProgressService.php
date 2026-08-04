@@ -161,6 +161,7 @@ class TrailProgressService
 
         $this->assertSameTeam($stage->trail, $collaborator);
         $this->assertPreviousStagesCompleted($stage, $collaborator);
+        $this->assertQuorumReached($stage, $collaborator);
 
         if ($this->isStageCompleted($stage, $collaborator)) {
             return $stage;
@@ -361,6 +362,37 @@ class TrailProgressService
             ->whereNull('trail_level_collaborator.deleted_at')
             ->whereNotNull('trail_level_collaborator.completed_at')
             ->count();
+    }
+
+    /**
+     * R2 - a etapa só fecha com o quórum de níveis atingido.
+     *
+     * Faltava validar isso no avanço manual: `syncStageCompletion` só chama
+     * `advanceStage` quando o quórum bate, mas a rota de avançar chamava
+     * direto, então o líder fechava a etapa com todos os níveis pendentes.
+     *
+     * Etapa sem nível cadastrado continua liberada: aí não existe quórum a
+     * cobrar, e é assim que as etapas de tarefa única são fechadas hoje.
+     *
+     * O quórum é limitado ao número de níveis existentes. Sem isso, uma etapa
+     * que exige 3 e tem 2 níveis cadastrados nunca fecharia.
+     */
+    private function assertQuorumReached(TrailStage $stage, Collaborator $collaborator): void
+    {
+        $levels = $stage->levels()->count();
+
+        if ($levels === 0) {
+            return;
+        }
+
+        $done = $this->completedLevelsCount($stage, $collaborator);
+        $required = min($stage->required_count, $levels);
+
+        if ($done < $required) {
+            throw new DomainException(
+                "Conclua {$required} nível(is) desta etapa antes de finalizá-la ({$done} de {$required})."
+            );
+        }
     }
 
     /**

@@ -13,6 +13,17 @@ class TrailsPermissionsSeeder extends Seeder
     {
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
         //
+        // Três perfis, três papéis:
+        //
+        //   trails.*            Líder (gestor da empresa) - tudo, inclusive excluir
+        //   trails.lider        Sublíder - cria e gerencia trilhas, não exclui
+        //   trails.colaborador  Liderado - só a própria trilha
+        //
+        // Avaliar o nível não tem permissão própria: a nota é dada no ato de
+        // concluir, então quem tem trails.advance avalia. Anexar certificado
+        // também não: é escrita na própria matrícula, e a checagem é no
+        // servidor ("é o dono, ou tem trails.advance") — permissão global
+        // deixaria um liderado anexar na trilha de outro.
         $permissionsByRole = [
             // gestão completa da trilha
             'trails' => [
@@ -23,9 +34,9 @@ class TrailsPermissionsSeeder extends Seeder
                 'trails.update',
                 'trails.advance',
                 'trails.mine',
-                'trails.list',
+                'trails.report',
             ],
-            // líder: cria, edita e avança seus liderados, mas não exclui trilhas
+            // sublíder: cria, edita e avança seus liderados, mas não exclui trilhas
             'trails.lider' => [
                 'trails.index',
                 'trails.show',
@@ -33,8 +44,9 @@ class TrailsPermissionsSeeder extends Seeder
                 'trails.update',
                 'trails.advance',
                 'trails.mine',
+                'trails.report',
             ],
-            // colaborador: só enxerga a própria trilha
+            // liderado: só enxerga a própria trilha
             'trails.colaborador' => [
                 'trails.mine',
             ],

@@ -197,6 +197,50 @@ class TrailProgressEndpointTest extends TestCase
         $this->assertDatabaseCount('trail_level_collaborator', 0);
     }
 
+    /**
+     * R2 no avanço manual: sem o quórum de níveis a etapa não fecha, nem pela
+     * rota. Era o que permitia ao líder concluir uma etapa intocada.
+     */
+    public function test_cannot_advance_stage_with_levels_pending()
+    {
+        $this->actingAsUserWith(['trails.advance', 'trails.index']);
+
+        // stageOne exige 2 níveis e nenhum foi concluído.
+        $response = $this->postJson("/api/trails/stages/{$this->stageOne->id}/advance", [
+            'collaborator_id' => $this->collaborator->id,
+        ]);
+
+        $response->assertStatus(422);
+        $this->assertSame(
+            'Conclua 2 nível(is) desta etapa antes de finalizá-la (0 de 2).',
+            $response->json()
+        );
+        $this->assertNull($this->collaborator->fresh()->jobplan_id);
+    }
+
+    public function test_stage_without_levels_can_still_be_advanced_manually()
+    {
+        $this->actingAsUserWith(['trails.advance', 'trails.index']);
+
+        $this->advance($this->stageOne);
+        $this->advance($this->stageTwo);
+
+        // Etapa de tarefa única: não há nível, então não há quórum a cobrar.
+        $solo = $this->persist(TrailStage::create([
+            'trail_id' => $this->trail->id,
+            'description' => 'Implementar um deploy novo',
+            'position' => 3,
+            'required_count' => 1,
+        ]));
+
+        $response = $this->postJson("/api/trails/stages/{$solo->id}/advance", [
+            'collaborator_id' => $this->collaborator->id,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('stages.2.state', 'completed');
+    }
+
     public function test_cannot_undo_stage_with_a_later_stage_completed()
     {
         $this->actingAsUserWith(['trails.advance', 'trails.index']);
@@ -409,8 +453,26 @@ class TrailProgressEndpointTest extends TestCase
         $this->assertCount(2, $this->collaborator->fresh()->badges);
     }
 
+    /**
+     * Conclui os níveis exigidos e então fecha a etapa.
+     *
+     * Antes o helper batia direto na rota de avanço com todos os níveis
+     * pendentes — o que passava porque o quórum não era validado ali (R2).
+     * Agora esse atalho dá 422, e tem teste próprio para isso.
+     */
     private function advance(TrailStage $stage): void
     {
+        $levels = $stage->levels()->orderBy('position')->get();
+        $required = min($stage->required_count, $levels->count());
+
+        for ($i = 0; $i < $required; $i++) {
+            $this->postJson("/api/trails/levels/{$levels[$i]->id}/complete", [
+                'collaborator_id' => $this->collaborator->id,
+            ])->assertStatus(200);
+        }
+
+        // Atingido o quórum a etapa já fecha sozinha; a chamada explícita é
+        // idempotente e cobre também a etapa sem nível cadastrado.
         $this->postJson("/api/trails/stages/{$stage->id}/advance", [
             'collaborator_id' => $this->collaborator->id,
         ])->assertStatus(200);
