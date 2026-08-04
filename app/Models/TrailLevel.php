@@ -17,6 +17,7 @@ class TrailLevel extends Init
         'description',
         'note',
         'type',
+        'skill',
         'position',
     ];
 

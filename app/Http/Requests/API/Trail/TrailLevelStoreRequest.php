@@ -19,6 +19,7 @@ class TrailLevelStoreRequest extends FormRequest
             'description' => 'required|max:255',
             'note' => 'nullable',
             'type' => ['nullable', Rule::in(['task', 'course', 'platform', 'technical_test', 'other'])],
+            'skill' => ['nullable', Rule::in(['soft', 'hard'])],
             'position' => 'nullable|integer|min:0',
         ];
     }
@@ -29,6 +30,7 @@ class TrailLevelStoreRequest extends FormRequest
             'description' => 'descrição',
             'note' => 'observações',
             'type' => 'tipo',
+            'skill' => 'competência',
             'position' => 'ordem',
         ];
     }

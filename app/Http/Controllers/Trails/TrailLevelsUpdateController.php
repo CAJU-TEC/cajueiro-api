@@ -18,6 +18,7 @@ class TrailLevelsUpdateController extends Controller
             'description',
             'note',
             'type',
+            'skill',
             'position',
         ]));
 

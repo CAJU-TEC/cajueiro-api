@@ -380,6 +380,7 @@ class TrailProgressService
                     'description' => $level->description,
                     'note' => $level->note,
                     'type' => $level->type,
+                    'skill' => $level->skill,
                     'position' => $level->position,
                     'materials' => $level->materials,
                     'completed' => $completed,

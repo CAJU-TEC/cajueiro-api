@@ -436,6 +436,38 @@ class TrailProgressEndpointTest extends TestCase
         $this->assertSame('A data de fim não pode ser anterior à de início.', $invertido->json());
     }
 
+    public function test_level_is_created_as_hard_skill_by_default_and_accepts_soft()
+    {
+        $this->actingAsUserWith(['trails.update', 'trails.index']);
+
+        $this->postJson("/api/trails/stages/{$this->stageTwo->id}/levels", [
+            'description' => 'Escrever documentacao tecnica',
+        ])->assertStatus(201);
+
+        $this->postJson("/api/trails/stages/{$this->stageTwo->id}/levels", [
+            'description' => 'Apresentar em publico',
+            'skill' => 'soft',
+        ])->assertStatus(201);
+
+        $skills = TrailLevel::where('trail_stage_id', $this->stageTwo->id)
+            ->orderBy('created_at')
+            ->pluck('skill', 'description');
+
+        // Sem informar, o nivel nasce hard: os que ja existiam sao tecnicos.
+        $this->assertSame('hard', $skills['Escrever documentacao tecnica']);
+        $this->assertSame('soft', $skills['Apresentar em publico']);
+    }
+
+    public function test_level_skill_must_be_soft_or_hard()
+    {
+        $this->actingAsUserWith(['trails.update', 'trails.index']);
+
+        $this->postJson("/api/trails/stages/{$this->stageTwo->id}/levels", [
+            'description' => 'Nivel invalido',
+            'skill' => 'medium',
+        ])->assertStatus(422);
+    }
+
     public function test_badges_endpoint_groups_by_collaborator()
     {
         $this->actingAsUserWith(['trails.advance', 'trails.index']);
