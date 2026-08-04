@@ -7,6 +7,7 @@ use App\Models\Trail;
 use App\Models\TrailLevel;
 use App\Models\TrailStage;
 use DomainException;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -21,12 +22,21 @@ use Illuminate\Support\Str;
  * R6 - Permissão: quem concluiu é sempre registrado em `completed_by`.
  * R7 - Desfazer:  só é possível desfazer a última etapa concluída, e o cargo
  *                 volta a ser o que era antes dela (`previous_job_plan_id`).
+ * R8 - Prazo:     cada nível tem início e fim por matrícula; sem datas fica
+ *                 "não iniciado" e estourar o fim só marca atrasado.
  */
 class TrailProgressService
 {
     public const STATE_COMPLETED = 'completed';
     public const STATE_UNLOCKED = 'unlocked';
     public const STATE_LOCKED = 'locked';
+
+    // Estado do prazo do nível (R8).
+    public const PERIOD_NOT_STARTED = 'not_started';
+    public const PERIOD_SCHEDULED = 'scheduled';
+    public const PERIOD_RUNNING = 'running';
+    public const PERIOD_LATE = 'late';
+    public const PERIOD_DONE = 'done';
 
     /**
      * Matricula o colaborador na trilha (R4).
@@ -119,6 +129,63 @@ class TrailProgressService
     }
 
     /**
+     * Define (ou limpa) o prazo do nível para um colaborador.
+     *
+     * Passar as duas datas nulas devolve o nível para "não iniciado" — é assim
+     * que o sublíder desfaz um prazo colocado errado.
+     *
+     * Prazo estourado não bloqueia nada: só marca o nível como atrasado.
+     */
+    public function setLevelPeriod(
+        TrailLevel $level,
+        Collaborator $collaborator,
+        ?string $startsAt,
+        ?string $endsAt
+    ): TrailStage {
+        $stage = $level->stage()->with('trail')->firstOrFail();
+
+        $this->assertSameTeam($stage->trail, $collaborator);
+        $this->assertEnrolled($stage->trail, $collaborator);
+
+        if ((bool) $startsAt !== (bool) $endsAt) {
+            throw new DomainException('Informe as duas datas do período, ou nenhuma.');
+        }
+
+        // Normalizado para Y-m-d na entrada: o estado do prazo é decidido
+        // comparando string de data, e o cliente pode mandar ISO completo. O
+        // MySQL truncaria numa coluna date, mas o SQLite dos testes guardaria
+        // o horário e a comparação passaria a mentir.
+        $startsAt = $startsAt ? Carbon::parse($startsAt)->toDateString() : null;
+        $endsAt = $endsAt ? Carbon::parse($endsAt)->toDateString() : null;
+
+        if ($startsAt && $endsAt && $endsAt < $startsAt) {
+            throw new DomainException('A data de fim não pode ser anterior à de início.');
+        }
+
+        $existing = $this->levelRecord($level, $collaborator);
+        $payload = [
+            'starts_at' => $startsAt,
+            'ends_at' => $endsAt,
+            'updated_at' => now(),
+        ];
+
+        if ($existing) {
+            DB::table('trail_level_collaborator')
+                ->where('trail_level_id', $level->id)
+                ->where('collaborator_id', $collaborator->id)
+                ->update($payload);
+        } else {
+            DB::table('trail_level_collaborator')->insert($payload + [
+                'trail_level_id' => $level->id,
+                'collaborator_id' => $collaborator->id,
+                'created_at' => now(),
+            ]);
+        }
+
+        return $stage->fresh();
+    }
+
+    /**
      * Desfaz a conclusão de um nível e reavalia a etapa.
      */
     public function undoLevel(TrailLevel $level, Collaborator $collaborator, string $userId): TrailStage
@@ -127,11 +194,19 @@ class TrailProgressService
 
         $this->assertNoLaterStageCompleted($stage, $collaborator);
 
+        // Limpa a conclusão mas mantém a linha: ela carrega o prazo do nível
+        // (starts_at/ends_at), que não tem nada a ver com ter concluído ou não.
+        // Apagar a linha, como era antes, jogava o prazo fora junto.
         DB::table('trail_level_collaborator')
             ->where('trail_level_id', $level->id)
             ->where('collaborator_id', $collaborator->id)
             ->whereNull('deleted_at')
-            ->update(['deleted_at' => now()]);
+            ->update([
+                'completed_at' => null,
+                'completed_by' => null,
+                'note' => null,
+                'updated_at' => now(),
+            ]);
 
         if ($this->completedLevelsCount($stage, $collaborator) < $stage->required_count) {
             $this->undoStage($stage, $collaborator);
@@ -278,6 +353,9 @@ class TrailProgressService
 
         $completedStageIds = $this->completedStageIds($trail, $collaborator);
         $completedLevelIds = $this->completedLevelIds($trail, $collaborator);
+        // Uma consulta para os prazos de todos os níveis da trilha, em vez de
+        // uma por nível dentro do laço.
+        $records = $this->levelRecords($trail, $collaborator);
 
         $previousCompleted = true;
         $stages = [];
@@ -293,15 +371,23 @@ class TrailProgressService
                 $state = self::STATE_LOCKED;
             }
 
-            $levels = $stage->levels->map(fn ($level) => [
-                'id' => $level->id,
-                'description' => $level->description,
-                'note' => $level->note,
-                'type' => $level->type,
-                'position' => $level->position,
-                'materials' => $level->materials,
-                'completed' => in_array($level->id, $completedLevelIds, true),
-            ]);
+            $levels = $stage->levels->map(function ($level) use ($completedLevelIds, $records) {
+                $completed = in_array($level->id, $completedLevelIds, true);
+                $record = $records[$level->id] ?? null;
+
+                return [
+                    'id' => $level->id,
+                    'description' => $level->description,
+                    'note' => $level->note,
+                    'type' => $level->type,
+                    'position' => $level->position,
+                    'materials' => $level->materials,
+                    'completed' => $completed,
+                    'starts_at' => $record->starts_at ?? null,
+                    'ends_at' => $record->ends_at ?? null,
+                    'period_state' => $this->periodState($record, $completed),
+                ];
+            });
 
             $stages[] = [
                 'id' => $stage->id,
@@ -350,6 +436,87 @@ class TrailProgressService
             ->whereNull('deleted_at')
             ->whereNotNull('completed_at')
             ->first();
+    }
+
+    /**
+     * Estado do prazo do nível, na ordem em que importa mostrar.
+     *
+     * Sem datas o nível é "não iniciado": o prazo só começa a contar quando o
+     * sublíder escolhe início e fim. Estourar o fim apenas marca atrasado, não
+     * bloqueia a conclusão.
+     */
+    private function periodState(?object $record, bool $completed): string
+    {
+        if ($completed) {
+            return self::PERIOD_DONE;
+        }
+
+        if (!$record || !$record->starts_at || !$record->ends_at) {
+            return self::PERIOD_NOT_STARTED;
+        }
+
+        $today = now()->toDateString();
+
+        if ($record->ends_at < $today) {
+            return self::PERIOD_LATE;
+        }
+
+        // Prazo agendado para o futuro não pode aparecer como "em andamento".
+        if ($record->starts_at > $today) {
+            return self::PERIOD_SCHEDULED;
+        }
+
+        return self::PERIOD_RUNNING;
+    }
+
+    /**
+     * Prazos de todos os níveis da trilha, indexados por nível.
+     */
+    private function levelRecords(Trail $trail, Collaborator $collaborator): array
+    {
+        return DB::table('trail_level_collaborator')
+            ->join('trail_levels', 'trail_levels.id', '=', 'trail_level_collaborator.trail_level_id')
+            ->join('trail_stages', 'trail_stages.id', '=', 'trail_levels.trail_stage_id')
+            ->where('trail_stages.trail_id', $trail->id)
+            ->where('trail_level_collaborator.collaborator_id', $collaborator->id)
+            ->whereNull('trail_level_collaborator.deleted_at')
+            ->get([
+                'trail_levels.id as level_id',
+                'trail_level_collaborator.starts_at',
+                'trail_level_collaborator.ends_at',
+            ])
+            ->keyBy('level_id')
+            ->all();
+    }
+
+    /**
+     * A linha do pivô nível × colaborador, que pode existir só com o prazo,
+     * sem conclusão nenhuma.
+     */
+    private function levelRecord(TrailLevel $level, Collaborator $collaborator): ?object
+    {
+        return DB::table('trail_level_collaborator')
+            ->where('trail_level_id', $level->id)
+            ->where('collaborator_id', $collaborator->id)
+            ->whereNull('deleted_at')
+            ->first();
+    }
+
+    /**
+     * Prazo só faz sentido para quem está matriculado — é o que amarra o
+     * período à matrícula, e não ao nível solto.
+     */
+    private function assertEnrolled(Trail $trail, Collaborator $collaborator): void
+    {
+        $enrolled = DB::table('trail_collaborator')
+            ->where('trail_id', $trail->id)
+            ->where('collaborator_id', $collaborator->id)
+            ->whereNull('deleted_at')
+            ->exists();
+
+        if (!$enrolled) {
+            throw new DomainException('O colaborador não está matriculado nesta trilha.');
+        }
     }
 
     private function completedLevelsCount(TrailStage $stage, Collaborator $collaborator): int

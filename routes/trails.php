@@ -6,6 +6,7 @@ use App\Http\Controllers\Trails\TrailCertificateController;
 use App\Http\Controllers\Trails\TrailCollaboratorsDestroyController;
 use App\Http\Controllers\Trails\TrailCollaboratorsStoreController;
 use App\Http\Controllers\Trails\TrailLevelCompleteController;
+use App\Http\Controllers\Trails\TrailLevelPeriodController;
 use App\Http\Controllers\Trails\TrailLevelsDestroyController;
 use App\Http\Controllers\Trails\TrailLevelsStoreController;
 use App\Http\Controllers\Trails\TrailLevelsUpdateController;
@@ -48,6 +49,8 @@ Route::delete('trails/stages/{stage}', TrailStagesDestroyController::class)->nam
 // níveis
 Route::post('trails/levels/{level}/complete', TrailLevelCompleteController::class)->name('levels.complete')->middleware(['role_or_permission:super-admin|trails.advance']);
 Route::delete('trails/levels/{level}/complete', TrailLevelUndoController::class)->name('levels.undo')->middleware(['role_or_permission:super-admin|trails.advance']);
+// prazo do nível por matrícula: quem planeja é quem edita a trilha
+Route::put('trails/levels/{level}/period', TrailLevelPeriodController::class)->name('levels.period')->middleware(['role_or_permission:super-admin|trails.update']);
 Route::put('trails/levels/{level}', TrailLevelsUpdateController::class)->name('levels.update')->middleware(['role_or_permission:super-admin|trails.update']);
 Route::delete('trails/levels/{level}', TrailLevelsDestroyController::class)->name('levels.destroy')->middleware(['role_or_permission:super-admin|trails.update']);
 

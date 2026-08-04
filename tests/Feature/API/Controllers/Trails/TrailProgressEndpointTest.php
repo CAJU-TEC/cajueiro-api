@@ -347,6 +347,95 @@ class TrailProgressEndpointTest extends TestCase
         $this->assertSame($this->planJunior->id, $this->collaborator->fresh()->jobplan_id);
     }
 
+    public function test_leader_sets_the_level_period()
+    {
+        $this->actingAsUserWith(['trails.update', 'trails.index']);
+
+        $response = $this->putJson("/api/trails/levels/{$this->levelOf($this->stageOne, 0)->id}/period", [
+            'collaborator_id' => $this->collaborator->id,
+            'starts_at' => now()->subDay()->toDateString(),
+            'ends_at' => now()->addDays(6)->toDateString(),
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('stages.0.levels.0.period_state', 'running');
+        $response->assertJsonPath('stages.0.levels.0.ends_at', now()->addDays(6)->toDateString());
+
+        // Prazo não é conclusão: a linha do pivô existe, o nível não.
+        $response->assertJsonPath('stages.0.levels.0.completed', false);
+        $response->assertJsonPath('stages.0.completed_levels_count', 0);
+        $response->assertJsonPath('stages.0.state', 'unlocked');
+    }
+
+    public function test_level_without_period_is_not_started_and_overdue_is_late()
+    {
+        $this->actingAsUserWith(['trails.update', 'trails.index']);
+
+        $level = $this->levelOf($this->stageOne, 0);
+
+        $this->putJson("/api/trails/levels/{$level->id}/period", [
+            'collaborator_id' => $this->collaborator->id,
+        ])->assertStatus(200)->assertJsonPath('stages.0.levels.0.period_state', 'not_started');
+
+        $this->putJson("/api/trails/levels/{$level->id}/period", [
+            'collaborator_id' => $this->collaborator->id,
+            'starts_at' => now()->subDays(10)->toDateString(),
+            'ends_at' => now()->subDay()->toDateString(),
+        ])->assertStatus(200)->assertJsonPath('stages.0.levels.0.period_state', 'late');
+    }
+
+    /**
+     * O prazo mora no mesmo pivô da conclusão, e o desfazer apagava a linha.
+     */
+    public function test_undoing_a_level_keeps_its_period()
+    {
+        $this->actingAsUserWith(['trails.update', 'trails.advance', 'trails.index']);
+
+        $level = $this->levelOf($this->stageOne, 0);
+        $ends = now()->addDays(3)->toDateString();
+
+        $this->putJson("/api/trails/levels/{$level->id}/period", [
+            'collaborator_id' => $this->collaborator->id,
+            'starts_at' => now()->toDateString(),
+            'ends_at' => $ends,
+        ])->assertStatus(200);
+
+        $this->postJson("/api/trails/levels/{$level->id}/complete", [
+            'collaborator_id' => $this->collaborator->id,
+        ])->assertStatus(200)->assertJsonPath('stages.0.levels.0.period_state', 'done');
+
+        $response = $this->deleteJson("/api/trails/levels/{$level->id}/complete", [
+            'collaborator_id' => $this->collaborator->id,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('stages.0.levels.0.completed', false);
+        $response->assertJsonPath('stages.0.levels.0.ends_at', $ends);
+        $response->assertJsonPath('stages.0.levels.0.period_state', 'running');
+    }
+
+    public function test_level_period_rejects_a_single_date_or_inverted_range()
+    {
+        $this->actingAsUserWith(['trails.update', 'trails.index']);
+
+        $level = $this->levelOf($this->stageOne, 0);
+
+        $umaData = $this->putJson("/api/trails/levels/{$level->id}/period", [
+            'collaborator_id' => $this->collaborator->id,
+            'starts_at' => now()->toDateString(),
+        ]);
+        $umaData->assertStatus(422);
+        $this->assertSame('Informe as duas datas do período, ou nenhuma.', $umaData->json());
+
+        $invertido = $this->putJson("/api/trails/levels/{$level->id}/period", [
+            'collaborator_id' => $this->collaborator->id,
+            'starts_at' => now()->toDateString(),
+            'ends_at' => now()->subDay()->toDateString(),
+        ]);
+        $invertido->assertStatus(422);
+        $this->assertSame('A data de fim não pode ser anterior à de início.', $invertido->json());
+    }
+
     public function test_badges_endpoint_groups_by_collaborator()
     {
         $this->actingAsUserWith(['trails.advance', 'trails.index']);
