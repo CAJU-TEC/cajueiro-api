@@ -7,6 +7,7 @@ use App\Models\Trail;
 use App\Models\TrailLevel;
 use App\Models\TrailStage;
 use DomainException;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -24,10 +25,12 @@ use Illuminate\Support\Str;
  *                 volta a ser o que era antes dela (`previous_job_plan_id`).
  * R8 - Prazo:     cada nível tem início e fim por matrícula; sem datas fica
  *                 "não iniciado" e estourar o fim só marca atrasado.
- * R9 - Avaliação: ao concluir o nível o líder dá nota de 0 a 100 e uma
- *                 resposta. Abaixo do `cut_score` o nível fica reprovado, mas
- *                 continua contando para o quórum: a nota se reflete na
- *                 porcentagem de avaliação da etapa, não na de conclusão.
+ * R9 - Avaliação: concluir o nível é avaliá-lo — nota de 0 a 100 e resposta ao
+ *                 colaborador, as duas obrigatórias. Abaixo do `cut_score` o
+ *                 nível fica reprovado, mas continua contando para o quórum: a
+ *                 nota se reflete na porcentagem de avaliação da etapa, não na
+ *                 de conclusão. A etapa não fecha enquanto houver nível
+ *                 aguardando avaliação.
  * R10 - Envio:    o colaborador envia o nível (podendo anexar certificado) e
  *                 ele fica aguardando avaliação. Enviar não conclui.
  */
@@ -115,9 +118,13 @@ class TrailProgressService
             throw new DomainException('A nota precisa estar entre 0 e 100.');
         }
 
+        // Inclui linha apagada de propósito: o desfazer antigo apagava a linha,
+        // e concluir de novo tem de revivê-la em vez de duplicar. Onde a base
+        // ficou com as duas (uma apagada e uma viva), a viva é a que vale.
         $record = DB::table('trail_level_collaborator')
             ->where('trail_level_id', $level->id)
             ->where('collaborator_id', $collaborator->id)
+            ->orderByRaw('deleted_at is null desc')
             ->first();
 
         // Reavaliar um nível já concluído é caso legítimo: o líder errou a nota
@@ -139,9 +146,9 @@ class TrailProgressService
         ];
 
         if ($record) {
-            DB::table('trail_level_collaborator')
-                ->where('trail_level_id', $level->id)
-                ->where('collaborator_id', $collaborator->id)
+            // Escreve na linha que foi lida, e só nela: com duplicata legada, um
+            // update por (nível, colaborador) reviveria a apagada também.
+            $this->levelRowQuery($level, $collaborator, (bool) $record->deleted_at)
                 ->update($payload);
         } else {
             DB::table('trail_level_collaborator')->insert($payload + [
@@ -152,6 +159,39 @@ class TrailProgressService
         }
 
         return $this->syncStageCompletion($stage, $collaborator, $userId);
+    }
+
+    /**
+     * Nome do arquivo que o colaborador anexou ao enviar o nível (R10).
+     */
+    public function levelCertificateUri(TrailLevel $level, Collaborator $collaborator): ?string
+    {
+        return $this->levelRecord($level, $collaborator)?->certificate_uri;
+    }
+
+    /**
+     * Remove a nota e a resposta do nível, mantendo a conclusão (R9).
+     *
+     * Não dá para fazer isso por `completeLevel`: nota e resposta nulas num
+     * nível já concluído é justamente o caso em que ele preserva a avaliação,
+     * para marcar o nível de novo não apagar o que o líder escreveu. Só a
+     * avaliação sai — o nível segue contando para o quórum, e o prazo e o envio
+     * do colaborador ficam onde estão.
+     */
+    public function clearLevelEvaluation(TrailLevel $level, Collaborator $collaborator): TrailStage
+    {
+        $stage = $level->stage()->with('trail')->firstOrFail();
+
+        $this->assertSameTeam($stage->trail, $collaborator);
+        $this->assertEnrolled($stage->trail, $collaborator);
+
+        $this->levelRowQuery($level, $collaborator)->update([
+            'note' => null,
+            'score' => null,
+            'updated_at' => now(),
+        ]);
+
+        return $stage->fresh();
     }
 
     /**
@@ -196,10 +236,7 @@ class TrailProgressService
         ];
 
         if ($existing) {
-            DB::table('trail_level_collaborator')
-                ->where('trail_level_id', $level->id)
-                ->where('collaborator_id', $collaborator->id)
-                ->update($payload);
+            $this->levelRowQuery($level, $collaborator)->update($payload);
         } else {
             DB::table('trail_level_collaborator')->insert($payload + [
                 'trail_level_id' => $level->id,
@@ -248,10 +285,7 @@ class TrailProgressService
         }
 
         if ($record) {
-            DB::table('trail_level_collaborator')
-                ->where('trail_level_id', $level->id)
-                ->where('collaborator_id', $collaborator->id)
-                ->update($payload);
+            $this->levelRowQuery($level, $collaborator)->update($payload);
         } else {
             DB::table('trail_level_collaborator')->insert($payload + [
                 'trail_level_id' => $level->id,
@@ -275,17 +309,13 @@ class TrailProgressService
         // Limpa a conclusão mas mantém a linha: ela carrega o prazo do nível
         // (starts_at/ends_at), que não tem nada a ver com ter concluído ou não.
         // Apagar a linha, como era antes, jogava o prazo fora junto.
-        DB::table('trail_level_collaborator')
-            ->where('trail_level_id', $level->id)
-            ->where('collaborator_id', $collaborator->id)
-            ->whereNull('deleted_at')
-            ->update([
-                'completed_at' => null,
-                'completed_by' => null,
-                'note' => null,
-                'score' => null,
-                'updated_at' => now(),
-            ]);
+        $this->levelRowQuery($level, $collaborator)->update([
+            'completed_at' => null,
+            'completed_by' => null,
+            'note' => null,
+            'score' => null,
+            'updated_at' => now(),
+        ]);
 
         if ($this->completedLevelsCount($stage, $collaborator) < $stage->required_count) {
             $this->undoStage($stage, $collaborator);
@@ -296,10 +326,18 @@ class TrailProgressService
 
     /**
      * Fecha a etapa se o quórum de níveis foi atingido (R2) e promove o colaborador (R3).
+     *
+     * Aqui a avaliação pendente só impede o fechamento automático, sem estourar
+     * exceção: quem chega neste ponto acabou de avaliar um nível e essa nota
+     * não pode ser recusada por causa de outro nível que ainda está na fila.
      */
     public function syncStageCompletion(TrailStage $stage, Collaborator $collaborator, string $userId): TrailStage
     {
         if ($this->completedLevelsCount($stage, $collaborator) < $stage->required_count) {
+            return $stage;
+        }
+
+        if ($this->pendingEvaluationCount($stage, $collaborator) > 0) {
             return $stage;
         }
 
@@ -316,6 +354,7 @@ class TrailProgressService
         $this->assertSameTeam($stage->trail, $collaborator);
         $this->assertPreviousStagesCompleted($stage, $collaborator);
         $this->assertQuorumReached($stage, $collaborator);
+        $this->assertNoPendingEvaluation($stage, $collaborator);
 
         if ($this->isStageCompleted($stage, $collaborator)) {
             return $stage;
@@ -624,11 +663,26 @@ class TrailProgressService
      */
     private function levelRecord(TrailLevel $level, Collaborator $collaborator): ?object
     {
-        return DB::table('trail_level_collaborator')
+        return $this->levelRowQuery($level, $collaborator)->first();
+    }
+
+    /**
+     * A matrícula do colaborador no nível, viva ou apagada.
+     *
+     * A tabela é um pivô sem chave própria e o desfazer antigo apagava a linha,
+     * então há base com duas linhas do mesmo par — uma apagada e uma viva.
+     * Qualquer escrita precisa dizer em qual das duas mexe, ou pega as duas.
+     */
+    private function levelRowQuery(
+        TrailLevel $level,
+        Collaborator $collaborator,
+        bool $deleted = false
+    ): Builder {
+        $query = DB::table('trail_level_collaborator')
             ->where('trail_level_id', $level->id)
-            ->where('collaborator_id', $collaborator->id)
-            ->whereNull('deleted_at')
-            ->first();
+            ->where('collaborator_id', $collaborator->id);
+
+        return $deleted ? $query->whereNotNull('deleted_at') : $query->whereNull('deleted_at');
     }
 
     /**
@@ -689,6 +743,40 @@ class TrailProgressService
                 "Conclua {$required} nível(is) desta etapa antes de finalizá-la ({$done} de {$required})."
             );
         }
+    }
+
+    /**
+     * R9 - a etapa não fecha com nível aguardando avaliação.
+     *
+     * Nível enviado e não avaliado não conta para o quórum, então a etapa podia
+     * fechar por outros níveis e deixar o envio do colaborador sem resposta
+     * nenhuma — que é justamente o trabalho que o líder ainda devia.
+     */
+    private function assertNoPendingEvaluation(TrailStage $stage, Collaborator $collaborator): void
+    {
+        $pending = $this->pendingEvaluationCount($stage, $collaborator);
+
+        if ($pending > 0) {
+            throw new DomainException(
+                "Avalie o(s) {$pending} nível(is) aguardando avaliação antes de finalizar a etapa."
+            );
+        }
+    }
+
+    /**
+     * Níveis que o colaborador enviou e o líder ainda não avaliou.
+     */
+    private function pendingEvaluationCount(TrailStage $stage, Collaborator $collaborator): int
+    {
+        return DB::table('trail_level_collaborator')
+            ->join('trail_levels', 'trail_levels.id', '=', 'trail_level_collaborator.trail_level_id')
+            ->where('trail_levels.trail_stage_id', $stage->id)
+            ->whereNull('trail_levels.deleted_at')
+            ->where('trail_level_collaborator.collaborator_id', $collaborator->id)
+            ->whereNull('trail_level_collaborator.deleted_at')
+            ->whereNotNull('trail_level_collaborator.submitted_at')
+            ->whereNull('trail_level_collaborator.completed_at')
+            ->count();
     }
 
     /**

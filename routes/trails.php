@@ -5,7 +5,9 @@ use App\Http\Controllers\Trails\TrailBadgesController;
 use App\Http\Controllers\Trails\TrailCertificateController;
 use App\Http\Controllers\Trails\TrailCollaboratorsDestroyController;
 use App\Http\Controllers\Trails\TrailCollaboratorsStoreController;
+use App\Http\Controllers\Trails\TrailLevelCertificateController;
 use App\Http\Controllers\Trails\TrailLevelCompleteController;
+use App\Http\Controllers\Trails\TrailLevelEvaluationDestroyController;
 use App\Http\Controllers\Trails\TrailLevelPeriodController;
 use App\Http\Controllers\Trails\TrailLevelSubmitController;
 use App\Http\Controllers\Trails\TrailLevelsDestroyController;
@@ -50,9 +52,13 @@ Route::delete('trails/stages/{stage}', TrailStagesDestroyController::class)->nam
 // níveis
 Route::post('trails/levels/{level}/complete', TrailLevelCompleteController::class)->name('levels.complete')->middleware(['role_or_permission:super-admin|trails.advance']);
 Route::delete('trails/levels/{level}/complete', TrailLevelUndoController::class)->name('levels.undo')->middleware(['role_or_permission:super-admin|trails.advance']);
+// remove só a nota e a resposta, sem desfazer a conclusão do nível
+Route::delete('trails/levels/{level}/evaluation', TrailLevelEvaluationDestroyController::class)->name('levels.evaluation.destroy')->middleware(['role_or_permission:super-admin|trails.advance']);
 // envio do nível pelo colaborador: permissão ampla porque quem envia é o
 // próprio liderado; o controller confere que é a trilha dele
 Route::post('trails/levels/{level}/submit', TrailLevelSubmitController::class)->name('levels.submit')->middleware(['role_or_permission:super-admin|trails.mine|trails.advance']);
+// certificado anexado no envio, servido pela API em vez do /storage público
+Route::get('trails/levels/{level}/certificate/{collaborator}', TrailLevelCertificateController::class)->name('levels.certificate')->middleware(['role_or_permission:super-admin|trails.mine|trails.index']);
 
 // prazo do nível por matrícula: quem planeja é quem edita a trilha
 Route::put('trails/levels/{level}/period', TrailLevelPeriodController::class)->name('levels.period')->middleware(['role_or_permission:super-admin|trails.update']);

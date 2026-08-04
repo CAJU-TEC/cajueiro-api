@@ -3,30 +3,23 @@
 namespace App\Http\Controllers\Trails;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\API\Trail\TrailLevelCompleteRequest;
+use App\Http\Requests\API\Trail\TrailAdvanceRequest;
 use App\Models\Collaborator;
 use App\Models\TrailLevel;
 use App\Services\Trails\TrailProgressService;
 use DomainException;
-use Illuminate\Support\Facades\Auth;
 
-class TrailLevelCompleteController extends Controller
+class TrailLevelEvaluationDestroyController extends Controller
 {
     public function __construct(private TrailProgressService $progress) {}
 
-    public function __invoke(TrailLevelCompleteRequest $request, $levelId)
+    public function __invoke(TrailAdvanceRequest $request, $levelId)
     {
         $level = TrailLevel::findOrFail($levelId);
         $collaborator = Collaborator::findOrFail($request->input('collaborator_id'));
 
         try {
-            $stage = $this->progress->completeLevel(
-                $level,
-                $collaborator,
-                Auth::id(),
-                $request->input('note'),
-                (int) $request->input('score')
-            );
+            $stage = $this->progress->clearLevelEvaluation($level, $collaborator);
         } catch (DomainException $e) {
             return response()->json($e->getMessage(), 422);
         }
