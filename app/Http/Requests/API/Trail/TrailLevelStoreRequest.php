@@ -8,6 +8,27 @@ use Illuminate\Validation\Rule;
 
 class TrailLevelStoreRequest extends FormRequest
 {
+    /**
+     * Tipos aceitos. Vive aqui e não num enum de banco: tipo novo é ajuste de
+     * vocabulário, não de esquema.
+     *
+     * `technical_test` só faz sentido em hard skill; `mentoring`,
+     * `presentation`, `dynamic` e `reading` só em soft. A combinação é
+     * oferecida pelo formulário, que filtra a lista pela competência
+     * escolhida — aqui a validação é só do valor em si.
+     */
+    public const TYPES = [
+        'task',
+        'course',
+        'platform',
+        'technical_test',
+        'mentoring',
+        'presentation',
+        'dynamic',
+        'reading',
+        'other',
+    ];
+
     public function authorize()
     {
         return Auth::check();
@@ -18,7 +39,7 @@ class TrailLevelStoreRequest extends FormRequest
         return [
             'description' => 'required|max:255',
             'note' => 'nullable',
-            'type' => ['nullable', Rule::in(['task', 'course', 'platform', 'technical_test', 'other'])],
+            'type' => ['nullable', Rule::in(self::TYPES)],
             'skill' => ['nullable', Rule::in(['soft', 'hard'])],
             'position' => 'nullable|integer|min:0',
         ];

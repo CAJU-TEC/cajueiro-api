@@ -468,6 +468,26 @@ class TrailProgressEndpointTest extends TestCase
         ])->assertStatus(422);
     }
 
+    public function test_level_accepts_soft_skill_types()
+    {
+        $this->actingAsUserWith(['trails.update', 'trails.index']);
+
+        // Tipos de soft skill nao existiam: o enum do banco so tinha os
+        // tecnicos, e o campo virou varchar por causa disso.
+        foreach (['mentoring', 'presentation', 'dynamic', 'reading'] as $type) {
+            $this->postJson("/api/trails/stages/{$this->stageTwo->id}/levels", [
+                'description' => "Nivel {$type}",
+                'skill' => 'soft',
+                'type' => $type,
+            ])->assertStatus(201)->assertJsonPath('type', $type);
+        }
+
+        $this->postJson("/api/trails/stages/{$this->stageTwo->id}/levels", [
+            'description' => 'Tipo inexistente',
+            'type' => 'coffee_break',
+        ])->assertStatus(422);
+    }
+
     public function test_badges_endpoint_groups_by_collaborator()
     {
         $this->actingAsUserWith(['trails.advance', 'trails.index']);
