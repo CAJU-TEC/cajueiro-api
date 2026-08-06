@@ -19,6 +19,7 @@ use App\Http\Controllers\Trails\TrailMaterialsStoreController;
 use App\Http\Controllers\Trails\TrailMaterialsUpdateController;
 use App\Http\Controllers\Trails\TrailMineController;
 use App\Http\Controllers\Trails\TrailProgressController;
+use App\Http\Controllers\Trails\TrailReportController;
 use App\Http\Controllers\Trails\TrailsDestroyController;
 use App\Http\Controllers\Trails\TrailsIndexController;
 use App\Http\Controllers\Trails\TrailsShowController;
@@ -76,6 +77,9 @@ Route::post('trails', TrailsStoreController::class)->name('store')->middleware([
 Route::put('trails/{trail}/stages/reorder', TrailStagesReorderController::class)->name('stages.reorder')->middleware(['role_or_permission:super-admin|trails.update']);
 Route::post('trails/{trail}/stages', TrailStagesStoreController::class)->name('stages.store')->middleware(['role_or_permission:super-admin|trails.update']);
 Route::get('trails/{trail}/collaborators/{collaborator}/progress', TrailProgressController::class)->name('progress')->middleware(['role_or_permission:super-admin|trails.index']);
+// relatório em PDF: sem colaborador sai o geral, com colaborador sai o individual
+Route::get('trails/{trail}/report', TrailReportController::class)->name('report.all')->middleware(['role_or_permission:super-admin|trails.report']);
+Route::get('trails/{trail}/collaborators/{collaborator}/report', TrailReportController::class)->name('report')->middleware(['role_or_permission:super-admin|trails.report']);
 Route::post('trails/{trail}/collaborators', TrailCollaboratorsStoreController::class)->name('collaborators.store')->middleware(['role_or_permission:super-admin|trails.update']);
 Route::delete('trails/{trail}/collaborators/{collaborator}', TrailCollaboratorsDestroyController::class)->name('collaborators.destroy')->middleware(['role_or_permission:super-admin|trails.update']);
 Route::get('trails/{trail}', TrailsShowController::class)->name('show')->middleware(['role_or_permission:super-admin|trails.show']);

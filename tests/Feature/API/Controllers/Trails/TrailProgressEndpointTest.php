@@ -983,6 +983,88 @@ class TrailProgressEndpointTest extends TestCase
         $this->assertSame($this->planTrainee->id, $this->collaborator->fresh()->jobplan_id);
     }
 
+    public function test_general_report_covers_every_enrolled_collaborator()
+    {
+        $this->actingAsUserWith(['trails.report', 'trails.update', 'trails.index']);
+
+        $bruno = $this->persist(Collaborator::create([
+            'team_id' => $this->team->id,
+            'first_name' => 'Bruno',
+            'last_name' => 'Lima',
+        ]));
+        $this->postJson("/api/trails/{$this->trail->id}/collaborators", [
+            'collaborator_id' => $bruno->id,
+        ])->assertSuccessful();
+
+        $response = $this->get("/api/trails/{$this->trail->id}/report");
+
+        $response->assertStatus(200);
+        $response->assertHeader('content-type', 'application/pdf');
+        $this->assertStringStartsWith('%PDF', $response->streamedContent());
+    }
+
+    public function test_general_report_requires_the_report_permission()
+    {
+        $this->actingAsUserWith(['trails.index', 'trails.advance']);
+
+        $this->getJson("/api/trails/{$this->trail->id}/report")->assertStatus(403);
+    }
+
+    public function test_report_requires_the_report_permission()
+    {
+        $this->actingAsUserWith(['trails.index', 'trails.advance']);
+
+        $this->getJson("/api/trails/{$this->trail->id}/collaborators/{$this->collaborator->id}/report")
+            ->assertStatus(403);
+    }
+
+    public function test_report_renders_a_pdf_with_the_trail_data()
+    {
+        $this->actingAsUserWith(['trails.report', 'trails.advance', 'trails.index']);
+
+        // Um nivel avaliado abaixo do corte e outro aguardando avaliacao, para o
+        // relatorio ter as tres situacoes em jogo.
+        $this->postJson("/api/trails/levels/{$this->levelOf($this->stageOne, 0)->id}/complete", [
+            'collaborator_id' => $this->collaborator->id,
+            'score' => 40,
+            'note' => 'Precisa detalhar melhor.',
+        ])->assertStatus(200);
+
+        $this->postJson("/api/trails/levels/{$this->levelOf($this->stageOne, 1)->id}/submit", [
+            'collaborator_id' => $this->collaborator->id,
+        ])->assertStatus(200);
+
+        $response = $this->get("/api/trails/{$this->trail->id}/collaborators/{$this->collaborator->id}/report");
+
+        $response->assertStatus(200);
+        // O controller engole excecao devolvendo JSON com 200, entao o
+        // content-type e o que separa PDF de mensagem de erro.
+        $response->assertHeader('content-type', 'application/pdf');
+        $this->assertStringStartsWith('%PDF', $response->streamedContent());
+    }
+
+    public function test_report_of_a_trail_without_stages_still_renders()
+    {
+        $this->actingAsUserWith(['trails.report', 'trails.index']);
+
+        $vazia = $this->persist(Trail::create([
+            'team_id' => $this->team->id,
+            'description' => 'Trilha sem etapas',
+        ]));
+        DB::table('trail_collaborator')->insert([
+            'trail_id' => $vazia->id,
+            'collaborator_id' => $this->collaborator->id,
+            'started_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $response = $this->get("/api/trails/{$vazia->id}/collaborators/{$this->collaborator->id}/report");
+
+        $response->assertStatus(200);
+        $response->assertHeader('content-type', 'application/pdf');
+    }
+
     public function test_certificate_is_blocked_for_an_incomplete_stage()
     {
         $this->actingAsUserWith(['trails.advance', 'trails.index']);
