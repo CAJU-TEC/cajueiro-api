@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Support\HtmlString;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -92,18 +93,23 @@ class CommentsStoreController extends Controller
             $ticket = $this->ticket->with(['comments.collaborator.user'])->findOrFail($request->get('ticket_id'));
             $collaborator = User::with(['collaborator'])->find(auth()->user()->id);
 
-            $data = [
+        $testing = $request->status === 'test'
+           && auth()->user()->can('tickets.testing')
+           && $request->boolean('testing');            
+                $data = [
                 'collaborator_id' => $collaborator->collaborator->id ?? $ticket->collaborator_id,
                 'description' => $request->get('description'),
                 'status' => $request->get('status'),
+                'testing' => $testing,
             ];
 
             $ticket->update([
                 'status' => $request->status,
-                'date_finish_ticket' => now()
+                'date_finish_ticket' => now(),
             ]);
 
             throw_if(empty($data['description']), new Exception('Preencha o campo do comentário para interagir'));
+
 
             $comment = $ticket->comments()->create($data);
 
