@@ -20,6 +20,11 @@ Route::middleware('auth:sanctum')->name('user')->get('/user', function (Request 
     // Auth::user()->tickets;
     Auth::user()->getAllPermissions();
     return [
-        'user' => Auth::user()?->load('collaborator:id,user_id,first_name'),
-    ];
+    'user' => Auth::user()?->load([
+        'collaborator:id,user_id,first_name',
+        'collaborator.image',
+        'permissions',
+        'roles',
+    ]),
+];
 });
