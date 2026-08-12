@@ -94,6 +94,13 @@ class Collaborator extends Init
             ->whereNull('trail_collaborator.deleted_at');
     }
 
+    public function schedules()
+    {
+        return $this->belongsToMany(Schedule::class, 'schedule_collaborator', 'collaborator_id', 'schedule_id')
+            ->withPivot(['position'])
+            ->orderByPivot('position');
+    }
+
     public function completedStages()
     {
         return $this->belongsToMany(TrailStage::class, 'trail_stage_collaborator', 'collaborator_id', 'trail_stage_id')
