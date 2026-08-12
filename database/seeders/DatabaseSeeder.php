@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             CorporatesPermissionsSeeder::class,
             TeamsPermissionsSeeder::class,
             TrailsPermissionsSeeder::class,
+            SchedulesPermissionsSeeder::class,
         ]);
     }
 }
