@@ -25,7 +25,7 @@ class TrailSupportSeeder extends Seeder
         [
             'description' => 'Suporte I',
             'job_plan' => 'Estágio',
-            'required_count' => 7,
+            'required_count' => 8,
             'note' => 'Marco de entrada na carreira de suporte. O colaborador desenvolve fundamentos de atendimento, sistema e organização.',
             'levels' => [
                 [
@@ -63,6 +63,12 @@ class TrailSupportSeeder extends Seeder
                     'note' => 'Demonstrar organização no acompanhamento de chamados, prazos e pendências.',
                     'skill' => 'soft',
                     'type' => 'organization',
+                ],
+                [
+                    'description' => 'Escrita de cenários em BDD/Gherkin',
+                    'note' => 'Descrever comportamento esperado e ocorrido no padrão Dado / Quando / Então, em português, ao registrar chamado.',
+                    'skill' => 'hard',
+                    'type' => 'course',
                 ],
                 [
                     'description' => 'Avaliação do cliente no atendimento',
@@ -125,7 +131,7 @@ class TrailSupportSeeder extends Seeder
         [
             'description' => 'Suporte III',
             'job_plan' => 'PLENO (Caju-manteiga) - Nível 1 Crescimento',
-            'required_count' => 7,
+            'required_count' => 10,
             'note' => 'Marco de atuação como referência técnica, com capacidade de tratar problemas complexos e apoiar outros profissionais.',
             'levels' => [
                 [
@@ -147,8 +153,8 @@ class TrailSupportSeeder extends Seeder
                     'type' => 'collaboration',
                 ],
                 [
-                    'description' => 'Orientação de atendentes',
-                    'note' => 'Apoiar profissionais de níveis anteriores na análise e resolução de chamados.',
+                    'description' => 'Apoio aos Suporte I e II',
+                    'note' => 'Apoiar os colaboradores das etapas Suporte I e Suporte II na análise e resolução de chamados, acompanhando a evolução deles.',
                     'skill' => 'soft',
                     'type' => 'leadership',
                 ],
@@ -165,6 +171,24 @@ class TrailSupportSeeder extends Seeder
                     'type' => 'task',
                 ],
                 [
+                    'description' => 'Domínio pleno dos produtos da empresa',
+                    'note' => 'Conhecer todos os produtos da empresa, e não apenas os módulos do dia a dia, a ponto de atender qualquer frente.',
+                    'skill' => 'hard',
+                    'type' => 'course',
+                ],
+                [
+                    'description' => 'Condução de reuniões e treinamentos',
+                    'note' => 'Conduzir reuniões e treinamentos com cliente e com a equipe, online e presencialmente.',
+                    'skill' => 'soft',
+                    'type' => 'leadership',
+                ],
+                [
+                    'description' => 'Oratória para apresentações',
+                    'note' => 'Apresentar em público com clareza e postura, evoluindo a partir do coaching recebido.',
+                    'skill' => 'soft',
+                    'type' => 'communication',
+                ],
+                [
                     'description' => 'Avaliação do cliente em incidentes complexos e críticos',
                     'note' => 'Manter a meta de avaliação dada pelo cliente no avaliador do sistema de atendimento em incidentes de alta complexidade e críticos. A nota vem da avaliação do cliente, não da percepção do líder.',
                     'skill' => 'hard',
@@ -175,7 +199,7 @@ class TrailSupportSeeder extends Seeder
         [
             'description' => 'Analista de Suporte',
             'job_plan' => 'SÊNIOR (Cajueiro) - Nível 1 Crescimento',
-            'required_count' => 6,
+            'required_count' => 8,
             'note' => 'Marco de especialização técnica e atuação na melhoria dos processos e indicadores do suporte.',
             'levels' => [
                 [
@@ -214,12 +238,24 @@ class TrailSupportSeeder extends Seeder
                     'skill' => 'soft',
                     'type' => 'collaboration',
                 ],
+                [
+                    'description' => 'Análise de requisitos de novas funcionalidades',
+                    'note' => 'Levantar e detalhar o requisito de uma funcionalidade nova a partir da necessidade do cliente, em formato que o desenvolvimento consiga executar.',
+                    'skill' => 'hard',
+                    'type' => 'task',
+                ],
+                [
+                    'description' => 'Pós-venda ativo',
+                    'note' => 'Procurar o cliente antes de ele pedir ajuda, acompanhando uso, dificuldades e pendências.',
+                    'skill' => 'soft',
+                    'type' => 'proactivity',
+                ],
             ],
         ],
         [
             'description' => 'Líder de Suporte',
             'job_plan' => 'SÊNIOR (Cajueiro) - Nível 3 Amadurecimento (Líder)',
-            'required_count' => 7,
+            'required_count' => 9,
             'note' => 'Marco de liderança responsável por pessoas, operação, indicadores, qualidade e evolução do time.',
             'levels' => [
                 [
@@ -261,6 +297,18 @@ class TrailSupportSeeder extends Seeder
                 [
                     'description' => 'Gestão e planejamento da equipe',
                     'note' => 'Organizar capacidade, distribuição de demandas, prioridades e desenvolvimento do time.',
+                    'skill' => 'hard',
+                    'type' => 'task',
+                ],
+                [
+                    'description' => 'Decisão junto às lideranças de outros setores',
+                    'note' => 'Participar das decisões internas da empresa junto aos líderes dos demais setores, levando a visão do suporte.',
+                    'skill' => 'soft',
+                    'type' => 'collaboration',
+                ],
+                [
+                    'description' => 'Relatório de satisfação do cliente',
+                    'note' => 'Produzir e apresentar o relatório das métricas de satisfação do cliente, a partir do avaliador do sistema de atendimento.',
                     'skill' => 'hard',
                     'type' => 'task',
                 ],
