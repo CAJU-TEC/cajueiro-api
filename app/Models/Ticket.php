@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use App\Enums\Tickets\Status;
 use App\Traits\HasTelegramNotifications;
@@ -141,6 +142,11 @@ class Ticket extends Init
     public function scopeStartsBefore(Builder $query, $date): Builder
     {
         return $query->whereDate('created_at', '=', Carbon::parse($date)->toDateString());
+    }
+
+    public function scopeStatusNot(Builder $query, $status): Builder
+    {
+        return $query->whereNotIn('status', Arr::wrap($status));
     }
 
     public function scopeToday(Builder $query, $date): Builder
