@@ -76,6 +76,7 @@ class TicketsIndexController extends Controller
             ->allowedFields(self::ALLOWED_FIELDS)
             ->allowedIncludes(self::ALLOWED_INCLUDES)
             ->allowedFilters($this->getAllowedFilters())
+            ->with('latestComment')            
             ->orderBy('tickets.code', 'desc');
 
         $tickets = $request->paginate

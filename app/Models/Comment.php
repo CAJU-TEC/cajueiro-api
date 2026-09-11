@@ -12,6 +12,9 @@ class Comment extends Init
 
 
     protected $guarded = [];
+    protected $casts = [
+    'testing' => 'boolean',
+    ];
     protected $keyType = 'string';
     public $incrementing = false;
 

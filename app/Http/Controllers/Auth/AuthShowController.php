@@ -16,8 +16,12 @@ class AuthShowController extends Controller
     public function __invoke(Request $request, $id)
     {
         $client = $this->user
-            ->with(['permissions', 'roles', 'tickets'])
+            ->with(['permissions',
+                    'roles',
+                    'tickets.latestComment',
+                    ])
             ->findOrFail($id);
+
         return response()->json($client, 200);
     }
 }

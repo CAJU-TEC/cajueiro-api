@@ -43,7 +43,8 @@ class Ticket extends Init
         'letter',
         'dateFinishTicket',
         'statusCast',
-        'timeForHuman'
+        'timeForHuman',
+        'testing',      
     ];
 
     protected $casts = [];
@@ -56,6 +57,15 @@ class Ticket extends Init
             'description' => $status->description(),
             'color' => $status->color()
         ] : null;
+    }
+
+    public function getTestingAttribute(): bool
+    {
+    $comment = $this->latestComment;
+
+    return $comment
+        && $comment->status === 'test'
+        && $comment->testing === true;
     }
 
     public function getTimeForHumanAttribute()
@@ -106,6 +116,12 @@ class Ticket extends Init
     public function comments()
     {
         return $this->morphMany(Comment::class, 'commentable');
+    }
+    public function latestComment()
+    {
+    return $this
+        ->morphOne(Comment::class, 'commentable')
+        ->latestOfMany('created_at');
     }
 
     public function client()
