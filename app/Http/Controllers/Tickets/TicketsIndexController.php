@@ -55,7 +55,9 @@ class TicketsIndexController extends Controller
         $this->allowedFilters[] = AllowedFilter::custom('date_finish_ticket', new AllowedFinishedFilter());
         $this->allowedFilters[] = AllowedFilter::custom('collaborator_id', new AllowedNullableFilter());
         $this->allowedFilters[] = AllowedFilter::custom('user_tickets', new AllowedFlexibleOrFilter());
+        $this->allowedFilters[] = AllowedFilter::exact('dufy');
         $this->allowedFilters[] = AllowedFilter::scope('starts_before');
+        $this->allowedFilters[] = AllowedFilter::scope('status_not');
         $this->allowedFilters[] = AllowedFilter::scope('today');
     }
 
