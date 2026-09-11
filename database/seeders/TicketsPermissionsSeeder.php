@@ -57,5 +57,8 @@ class TicketsPermissionsSeeder extends Seeder
                 $role->givePermissionTo($permission['name']);
             }
         }
+
+        // criada avulsa para concessão manual por usuário, sem vínculo a papel
+        Permission::firstOrCreate(['name' => 'tickets.testing', 'guard_name' => 'web']);
     }
 }
