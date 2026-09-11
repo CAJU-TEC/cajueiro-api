@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tickets;
 
 use App\Events\TicketsListPusher;
+use App\Enums\Tickets\Status;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Ticket\TicketStoreRequest;
 use App\Models\Ticket;
@@ -112,8 +113,9 @@ class TicketsStoreController extends Controller
                 'validated',
                 'subject',
                 'message',
-                'status',
             ]);
+
+            $data['status'] = Status::TODO->value;
 
             if ($data['platform'] == 'web_mobile') {
                 $data['platform'] = 'mobile';

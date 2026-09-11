@@ -22,6 +22,7 @@ Route::middleware('auth:sanctum')->name('user')->get('/user', function (Request 
     return [
     'user' => Auth::user()?->load([
         'collaborator:id,user_id,first_name',
+        'collaborator.image',
         'permissions',
         'roles',
     ]),
