@@ -16,39 +16,39 @@ use Illuminate\Support\Str;
 class CommentsStoreController extends Controller
 {
     const STATUS = [
-        'backlog' => 'AGUARDANDO',
-        'todo' => 'A FAZER',
-        'analyze' => 'ANALISE',
+        'backlog'     => 'AGUARDANDO',
+        'todo'        => 'A FAZER',
+        'analyze'     => 'ANALISE',
         'development' => 'DESENVOLVIMENTO',
-        'test' => 'TESTE',
-        'pending' => 'PENDENTE',
-        'done' => 'FINALIZADO',
-        'validation' => 'VALIDAÇÃO',
+        'test'        => 'TESTE',
+        'pending'     => 'PENDENTE',
+        'done'        => 'FINALIZADO',
+        'validation'  => 'VALIDAÇÃO',
     ];
 
     const MIME_TYPE = [
 
-        'txt' => 'text/plain',
-        'htm' => 'text/html',
+        'txt'  => 'text/plain',
+        'htm'  => 'text/html',
         'html' => 'text/html',
-        'php' => 'text/html',
-        'css' => 'text/css',
-        'js' => 'javascript',
+        'php'  => 'text/html',
+        'css'  => 'text/css',
+        'js'   => 'javascript',
         'json' => 'json',
-        'xml' => 'xml',
-        'swf' => 'x-shockwave-flash',
-        'flv' => 'video/x-flv',
+        'xml'  => 'xml',
+        'swf'  => 'x-shockwave-flash',
+        'flv'  => 'video/x-flv',
 
         // images
-        'png' => 'png',
+        'png'  => 'png',
         'jpeg' => 'jpeg',
-        'jpg' => 'jpeg',
-        'gif' => 'gif',
-        'bmp' => 'bmp',
-        'ico' => 'vnd.microsoft.icon',
+        'jpg'  => 'jpeg',
+        'gif'  => 'gif',
+        'bmp'  => 'bmp',
+        'ico'  => 'vnd.microsoft.icon',
         'tiff' => 'tiff',
-        'tif' => 'tiff',
-        'svg' => 'svg+xml',
+        'tif'  => 'tiff',
+        'svg'  => 'svg+xml',
         'svgz' => 'svg+xml',
 
         // archives
@@ -60,23 +60,23 @@ class CommentsStoreController extends Controller
 
         // audio/video
         'mp3' => 'audio/mpeg',
-        'qt' => 'video/quicktime',
+        'qt'  => 'video/quicktime',
         'mov' => 'video/quicktime',
 
         // adobe
         'pdf' => 'pdf',
         'psd' => 'image/vnd.adobe.photoshop',
-        'ai' => 'postscript',
+        'ai'  => 'postscript',
         'eps' => 'postscript',
-        'ps' => 'postscript',
+        'ps'  => 'postscript',
 
         // ms office
-        'doc' => 'msword',
+        'doc'  => 'msword',
         'docx' => 'vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'rtf' => 'rtf',
-        'xls' => 'vnd.ms-excel',
+        'rtf'  => 'rtf',
+        'xls'  => 'vnd.ms-excel',
         'xlsx' => 'vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'ppt' => 'vnd.ms-powerpoint',
+        'ppt'  => 'vnd.ms-powerpoint',
 
         // open office
         'odt' => 'vnd.oasis.opendocument.text',
@@ -90,21 +90,25 @@ class CommentsStoreController extends Controller
     {
         try {
             DB::beginTransaction();
-            $ticket = $this->ticket->with(['comments.collaborator.user'])->findOrFail($request->get('ticket_id'));
+            $ticket       = $this->ticket->with(['comments.collaborator.user'])->findOrFail($request->get('ticket_id'));
             $collaborator = User::with(['collaborator'])->find(auth()->user()->id);
 
-        $testing = $request->status === 'test'
-           && auth()->user()->can('tickets.testing')
-           && $request->boolean('testing');            
-                $data = [
+            $testing = $request->status === 'test'
+                && auth()->user()->can('tickets.testing')
+                && $request->boolean('testing');
+
+            $recorrencia = $request->status === 'pending'
+                && $request->boolean('recorrencia');
+            $data = [
                 'collaborator_id' => $collaborator->collaborator->id ?? $ticket->collaborator_id,
-                'description' => $request->get('description'),
-                'status' => $request->get('status'),
-                'testing' => $testing,
+                'description'     => $request->get('description'),
+                'status'          => $request->get('status'),
+                'testing'         => $testing,
+                'recorrencia'     => $recorrencia,
             ];
 
             $ticket->update([
-                'status' => $request->status,
+                'status'             => $request->status,
                 'date_finish_ticket' => now(),
             ]);
 
@@ -144,9 +148,10 @@ class CommentsStoreController extends Controller
             // event(new NotificationTicketsPusher($collaboratorsForNotifications));
 
             if ($request->image) {
+
                 foreach ($request->image as $imagem) {
                     $name = $this->nomearArquivo($imagem);
-                    $uri = storage_path('app/public/images/') . $name;
+                    $uri  = storage_path('app/public/images/') . $name;
 
                     $this->uploadFiles($imagem, $uri);
                     $comment->image()->create([
@@ -176,24 +181,28 @@ class CommentsStoreController extends Controller
             // }
 
             DB::commit();
+
             return response()->json($comment, 201);
         } catch (Exception $e) {
             DB::rollBack();
+
             return response()->json($e->getMessage(), 500);
         }
     }
 
-    protected function uploadFiles($upload, $uri)
+    protected function uploadFiles(mixed $upload, mixed $uri)
     {
         list(, $upload) = explode(';', $upload);
         list(, $upload) = explode(',', $upload);
+
         $upload = base64_decode($upload);
+
         file_put_contents($uri, $upload);
     }
 
-    protected function nomearArquivo($imagem)
+    protected function nomearArquivo(mixed $imagem)
     {
-        $mime = explode('/', mime_content_type($imagem))[1];
+        $mime    = explode('/', mime_content_type($imagem))[1];
         $extense = array_filter(self::MIME_TYPE, function ($value) use ($mime) {
             return $value == $mime;
         }, ARRAY_FILTER_USE_BOTH);
