@@ -10,12 +10,15 @@ class Comment extends Init
 {
     use HasTelegramNotifications;
 
-
     protected $guarded = [];
-    protected $casts = [
-    'testing' => 'boolean',
+
+    protected $casts   = [
+        'recorrencia' => 'boolean',
+        'testing'     => 'boolean',
     ];
+
     protected $keyType = 'string';
+
     public $incrementing = false;
 
     public function commentable()
