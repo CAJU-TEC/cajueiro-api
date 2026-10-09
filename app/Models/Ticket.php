@@ -98,10 +98,11 @@ class Ticket extends Init
 
     public function getDateFinishTicketAttribute()
     {
-        if ($comment = $this->comments()->latest()->first()) {
-            return $comment->created_at;
-        }
-        return null;
+        $comment = $this->relationLoaded('latestComment')
+            ? $this->latestComment
+            : $this->comments()->latest()->first();
+
+        return $comment?->created_at;
     }
 
     public function image()

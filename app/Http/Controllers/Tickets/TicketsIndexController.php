@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Tickets;
 
+use App\Enums\Tickets\Status;
+use App\Filters\AllowedExactOrPartialFilter;
 use App\Filters\AllowedFinishedFilter;
 use App\Filters\AllowedFlexibleOrFilter;
 use App\Filters\AllowedNullableFilter;
@@ -44,14 +46,16 @@ class TicketsIndexController extends Controller
         'client.corporate.image',
     ];
 
-    private $allowedFilters = [
-        'code',
-        'priority',
-        'status',
-    ];
+    private $allowedFilters = [];
 
     public function addAllowedFilter()
     {
+        $this->allowedFilters[] = AllowedFilter::partial('code');
+        $this->allowedFilters[] = AllowedFilter::custom('priority', new AllowedExactOrPartialFilter(['no', 'yes']));
+        $this->allowedFilters[] = AllowedFilter::custom(
+            'status',
+            new AllowedExactOrPartialFilter(array_column(Status::cases(), 'value'))
+        );
         $this->allowedFilters[] = AllowedFilter::custom('date_finish_ticket', new AllowedFinishedFilter());
         $this->allowedFilters[] = AllowedFilter::custom('collaborator_id', new AllowedNullableFilter());
         $this->allowedFilters[] = AllowedFilter::custom('user_tickets', new AllowedFlexibleOrFilter());
