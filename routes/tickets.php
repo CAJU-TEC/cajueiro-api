@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Tickets\TicketsControlByClientController;
 use App\Http\Controllers\Tickets\TicketsControlMetricsController;
+use App\Http\Controllers\Tickets\TicketsControlProtocolsController;
 use App\Http\Controllers\Tickets\TicketsDestroyController;
 use App\Http\Controllers\Tickets\TicketsFindStatusController;
 use App\Http\Controllers\Tickets\TicketsGraphDashboardController;
@@ -23,6 +24,7 @@ Route::patch('tickets/timeAlterDuty', TicketsTimeStoreController::class)->name('
 
 // Control - Tickets agrupados por cliente
 Route::get('tickets/control/by-client', TicketsControlByClientController::class)->name('controlByClient')->middleware(['role_or_permission:super-admin|tickets.index']);
+Route::get('tickets/control/protocols', TicketsControlProtocolsController::class)->name('controlProtocols')->middleware(['role_or_permission:super-admin|tickets.index']);
 Route::get('tickets/control/metrics', TicketsControlMetricsController::class)->name('controlMetrics')->middleware(['role_or_permission:super-admin|tickets.index']);
 
 Route::get('tickets', TicketsIndexController::class)->name('index')->middleware(['role_or_permission:super-admin|tickets.index']);
