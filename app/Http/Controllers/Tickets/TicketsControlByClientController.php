@@ -28,10 +28,12 @@ class TicketsControlByClientController extends Controller
             ->orderBy('corporates.first_name')
             ->get()
             ->map(fn ($row) => [
-                'id' => $row->id,
-                'nome' => $row->first_name && $row->last_name
+                'id' => $row->id ?? TicketsControlQuery::SEM_EMPRESA,
+                'nome' => $row->id === null
+                    ? 'Sem empresa'
+                    : ($row->first_name && $row->last_name
                     ? $row->first_name . ' ' . $row->last_name
-                    : $row->first_name,
+                    : $row->first_name),
                 'initials' => $row->initials,
                 'total' => (int) $row->total,
                 'abertos' => (int) $row->abertos,

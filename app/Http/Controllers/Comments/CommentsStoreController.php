@@ -110,6 +110,8 @@ class CommentsStoreController extends Controller
             $ticket->update([
                 'status'             => $request->status,
                 'date_finish_ticket' => now(),
+                // "A Fazer" = ainda sem dev: ao devolver o ticket para essa fila, o dev é desvinculado.
+                ...($request->status === 'todo' ? ['collaborator_id' => null] : []),
             ]);
 
             throw_if(empty($data['description']), new Exception('Preencha o campo do comentário para interagir'));
