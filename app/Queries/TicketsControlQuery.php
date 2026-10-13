@@ -33,6 +33,9 @@ class TicketsControlQuery
         'done' => 'finalizado',
     ];
 
+    /** Id usado pela tela para o grupo de protocolos cujo cliente não tem empresa. */
+    public const SEM_EMPRESA = 'sem-empresa';
+
     /** Dias a partir dos quais um protocolo aberto é considerado atrasado. */
     public const DIAS_ATRASO = 4;
 
@@ -44,7 +47,8 @@ class TicketsControlQuery
     {
         $query = DB::table('tickets')
             ->join('clients', 'clients.id', '=', 'tickets.client_id')
-            ->join('corporates', 'corporates.id', '=', 'clients.corporate_id')
+            // leftJoin: clientes sem empresa também são protocolos em aberto e entram na contagem.
+            ->leftJoin('corporates', 'corporates.id', '=', 'clients.corporate_id')
             ->whereNull('tickets.deleted_at')
             ->whereNull('clients.deleted_at')
             ->whereNull('corporates.deleted_at');
@@ -72,7 +76,9 @@ class TicketsControlQuery
         $query->whereIn('tickets.status', static::statuses($request));
 
         if ($request->filled('corporate_id')) {
-            $query->where('clients.corporate_id', $request->input('corporate_id'));
+            $request->input('corporate_id') === self::SEM_EMPRESA
+                ? $query->whereNull('clients.corporate_id')
+                : $query->where('clients.corporate_id', $request->input('corporate_id'));
         }
 
         if ($request->filled('platform')) {
