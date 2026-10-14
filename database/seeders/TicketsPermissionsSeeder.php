@@ -60,5 +60,9 @@ class TicketsPermissionsSeeder extends Seeder
 
         // criada avulsa para concessão manual por usuário, sem vínculo a papel
         Permission::firstOrCreate(['name' => 'tickets.testing', 'guard_name' => 'web']);
+
+        // libera os botões de apagar protocolo e a página "Protocolos apagados" (restaurar);
+        // avulsa, concedida manualmente por usuário
+        Permission::firstOrCreate(['name' => 'tickets.trash', 'guard_name' => 'web']);
     }
 }
