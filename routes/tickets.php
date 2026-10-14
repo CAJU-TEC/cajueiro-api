@@ -4,6 +4,8 @@ use App\Http\Controllers\Tickets\TicketsControlByClientController;
 use App\Http\Controllers\Tickets\TicketsControlMetricsController;
 use App\Http\Controllers\Tickets\TicketsControlProtocolsController;
 use App\Http\Controllers\Tickets\TicketsDestroyController;
+use App\Http\Controllers\Tickets\TicketsRestoreController;
+use App\Http\Controllers\Tickets\TicketsTrashedController;
 use App\Http\Controllers\Tickets\TicketsFindStatusController;
 use App\Http\Controllers\Tickets\TicketsGraphDashboardController;
 use App\Http\Controllers\Tickets\TicketsIndexController;
@@ -29,10 +31,12 @@ Route::get('tickets/control/metrics', TicketsControlMetricsController::class)->n
 
 Route::get('tickets', TicketsIndexController::class)->name('index')->middleware(['role_or_permission:super-admin|tickets.index']);
 Route::post('tickets/ticketsFindStatus', TicketsFindStatusController::class)->name('ticketsFindStatus')->middleware(['role_or_permission:super-admin|tickets.index']);
+Route::get('tickets/trashed', TicketsTrashedController::class)->name('trashed')->middleware(['role_or_permission:super-admin|tickets.trash']);
+Route::patch('tickets/{ticket}/restore', TicketsRestoreController::class)->name('restore')->middleware(['role_or_permission:super-admin|tickets.trash']);
 Route::get('tickets/{ticket}', TicketsShowController::class)->name('show')->middleware(['role_or_permission:super-admin|tickets.show']);
 Route::get('tickets/kanban/{ticket}', TicketsKanbanController::class)->name('kanban');
 Route::post('tickets', TicketsStoreController::class)->name('store')->middleware(['role_or_permission:super-admin|tickets.store']);
 Route::put('tickets/{ticket}', TicketsUpdateController::class)->name('update')->middleware(['role_or_permission:super-admin|tickets.update']);
-Route::delete('tickets/{ticket}', TicketsDestroyController::class)->name('destroy')->middleware(['role_or_permission:super-admin|tickets.destroy']);
+Route::delete('tickets/{ticket}', TicketsDestroyController::class)->name('destroy')->middleware(['role_or_permission:super-admin|tickets.destroy|tickets.trash']);
 Route::patch('tickets/{ticket}', TicketsPatchCollaboratorController::class)->name('patchCollaborator');
 Route::patch('tickets/{ticket}/tester', TicketsPatchTesterController::class)->name('patchTester');
