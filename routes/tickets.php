@@ -36,7 +36,7 @@ Route::patch('tickets/{ticket}/restore', TicketsRestoreController::class)->name(
 Route::get('tickets/{ticket}', TicketsShowController::class)->name('show')->middleware(['role_or_permission:super-admin|tickets.show']);
 Route::get('tickets/kanban/{ticket}', TicketsKanbanController::class)->name('kanban');
 Route::post('tickets', TicketsStoreController::class)->name('store')->middleware(['role_or_permission:super-admin|tickets.store']);
-Route::put('tickets/{ticket}', TicketsUpdateController::class)->name('update')->middleware(['role_or_permission:super-admin|tickets.update']);
+Route::put('tickets/{ticket}', TicketsUpdateController::class)->name('update')->middleware(['role_or_permission:super-admin|tickets.trash']);
 Route::delete('tickets/{ticket}', TicketsDestroyController::class)->name('destroy')->middleware(['role_or_permission:super-admin|tickets.destroy|tickets.trash']);
 Route::patch('tickets/{ticket}', TicketsPatchCollaboratorController::class)->name('patchCollaborator');
 Route::patch('tickets/{ticket}/tester', TicketsPatchTesterController::class)->name('patchTester');
