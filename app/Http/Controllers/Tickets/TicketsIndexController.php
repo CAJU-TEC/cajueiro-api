@@ -78,7 +78,18 @@ class TicketsIndexController extends Controller
             ->allowedFields(self::ALLOWED_FIELDS)
             ->allowedIncludes(self::ALLOWED_INCLUDES)
             ->allowedFilters($this->getAllowedFilters())
-            ->with('latestComment')            
+            ->with('latestComment')
+            // Aba Teste: protocolos marcados como TESTANDO (último comentário) vêm primeiro.
+            ->when($request->boolean('testing_first'), fn ($q) => $q->orderByRaw(
+                "(select case when c.status = 'test' and c.testing = 1 then 1 else 0 end
+                    from comments c
+                   where c.commentable_id = tickets.id
+                     and c.commentable_type = ?
+                     and c.deleted_at is null
+                   order by c.created_at desc, c.id desc
+                   limit 1) desc",
+                [Ticket::class]
+            ))
             ->orderBy('tickets.code', 'desc');
 
         $tickets = $request->paginate
