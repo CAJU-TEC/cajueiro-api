@@ -112,6 +112,8 @@ class CommentsStoreController extends Controller
                 'date_finish_ticket' => now(),
                 // "A Fazer" = ainda sem dev: ao devolver o ticket para essa fila, o dev é desvinculado.
                 ...($request->status === 'todo' ? ['collaborator_id' => null] : []),
+                // Quem marca TESTANDO assume o protocolo como QA responsável.
+                ...($testing && $collaborator->collaborator ? ['tester_id' => $collaborator->collaborator->id] : []),
             ]);
 
             throw_if(empty($data['description']), new Exception('Preencha o campo do comentário para interagir'));
