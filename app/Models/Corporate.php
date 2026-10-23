@@ -13,7 +13,8 @@ class Corporate extends Init
         'initials',
         'first_name',
         'last_name',
-        'address'
+        'address',
+        'corporate_group_id',
     ];
 
     protected $appends = [
@@ -31,6 +32,11 @@ class Corporate extends Init
     {
         if ($this->first_name && $this->last_name)
             return $this->first_name . ' ' . $this->last_name;
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(CorporateGroup::class, 'corporate_group_id');
     }
 
     public function clients()

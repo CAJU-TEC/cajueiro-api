@@ -17,7 +17,8 @@ class CorporateIndexController extends Controller
         return response()->json($this->corporate->with([
             'image',
             'email',
-            'clients.image'
+            'clients.image',
+            'group:id,nome'
         ])->latest()->get(), 200);
     }
 }

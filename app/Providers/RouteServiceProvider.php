@@ -87,6 +87,12 @@ class RouteServiceProvider extends ServiceProvider
                 ->name('corporates.')
                 ->group(base_path('routes/corporates.php'));
 
+            // grupos de organizações
+            Route::middleware(['api', 'auth:sanctum'])
+                ->prefix('api')
+                ->name('corporate-groups.')
+                ->group(base_path('routes/corporateGroups.php'));
+
             // tickets
             Route::middleware(['api', 'auth:sanctum'])
                 ->prefix('api')

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\API\Corporate;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CorporateUpdateRequest extends FormRequest
 {
@@ -26,7 +27,8 @@ class CorporateUpdateRequest extends FormRequest
         return [
             'first_name' => 'required|max:255',
             'last_name' => 'required|max:255',
-            'address' => 'required'
+            'address' => 'required',
+            'corporate_group_id' => ['nullable', Rule::exists('corporate_groups', 'id')->whereNull('deleted_at')],
         ];
     }
 
@@ -36,6 +38,7 @@ class CorporateUpdateRequest extends FormRequest
             'first_name' => 'primeiro nome',
             'last_name' => 'último nome',
             'address' => 'endereço',
+            'corporate_group_id' => 'grupo',
         ];
     }
 }

@@ -19,7 +19,8 @@ class CorporateUpdateController extends Controller
                 'initials',
                 'first_name',
                 'last_name',
-                'address'
+                'address',
+                'corporate_group_id',
             ]));
 
             if ($request->email) {
