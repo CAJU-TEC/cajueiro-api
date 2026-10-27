@@ -75,6 +75,12 @@ class RouteServiceProvider extends ServiceProvider
                 ->name('schedules.')
                 ->group(base_path('routes/schedules.php'));
 
+            // dumps
+            Route::middleware(['api', 'auth:sanctum'])
+                ->prefix('api')
+                ->name('dumps.')
+                ->group(base_path('routes/dumps.php'));
+
             // trails
             Route::middleware(['api', 'auth:sanctum'])
                 ->prefix('api')
