@@ -19,7 +19,15 @@ class CorporateUpdateController extends Controller
                 'initials',
                 'first_name',
                 'last_name',
-                'address'
+                'address',
+                'ativo',
+                'host_prod',
+                'banco_prod',
+                'host_dev',
+                'banco_dev',
+                'host_hmg',
+                'banco_hmg',
+                'corporate_group_id',
             ]));
 
             if ($request->email) {

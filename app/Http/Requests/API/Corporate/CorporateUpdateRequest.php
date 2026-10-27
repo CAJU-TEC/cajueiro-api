@@ -6,6 +6,8 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class CorporateUpdateRequest extends FormRequest
 {
+    use ValidaBancosDaOrganizacao;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -27,7 +29,7 @@ class CorporateUpdateRequest extends FormRequest
             'first_name' => 'required|max:255',
             'last_name' => 'required|max:255',
             'address' => 'required'
-        ];
+        ] + $this->regrasBancos();
     }
 
     public function attributes()
@@ -36,6 +38,11 @@ class CorporateUpdateRequest extends FormRequest
             'first_name' => 'primeiro nome',
             'last_name' => 'último nome',
             'address' => 'endereço',
-        ];
+        ] + $this->nomesBancos();
+    }
+
+    public function messages()
+    {
+        return $this->mensagensBancos();
     }
 }

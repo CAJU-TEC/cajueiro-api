@@ -75,6 +75,12 @@ class RouteServiceProvider extends ServiceProvider
                 ->name('schedules.')
                 ->group(base_path('routes/schedules.php'));
 
+            // dumps
+            Route::middleware(['api', 'auth:sanctum'])
+                ->prefix('api')
+                ->name('dumps.')
+                ->group(base_path('routes/dumps.php'));
+
             // trails
             Route::middleware(['api', 'auth:sanctum'])
                 ->prefix('api')
@@ -86,6 +92,12 @@ class RouteServiceProvider extends ServiceProvider
                 ->prefix('api')
                 ->name('corporates.')
                 ->group(base_path('routes/corporates.php'));
+
+            // grupos de organizações
+            Route::middleware(['api', 'auth:sanctum'])
+                ->prefix('api')
+                ->name('corporate-groups.')
+                ->group(base_path('routes/corporateGroups.php'));
 
             // tickets
             Route::middleware(['api', 'auth:sanctum'])
