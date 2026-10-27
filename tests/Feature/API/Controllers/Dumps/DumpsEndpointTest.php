@@ -5,9 +5,12 @@ namespace Tests\Feature\API\Controllers\Dumps;
 use App\Jobs\RefreshDatabaseJob;
 use App\Models\Corporate;
 use App\Models\Dump;
+use App\Models\Permission;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Queue;
 use Laravel\Sanctum\Sanctum;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 class DumpsEndpointTest extends TestCase
@@ -19,7 +22,15 @@ class DumpsEndpointTest extends TestCase
     {
         parent::setUp();
 
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+        $role = Role::firstOrCreate(['name' => 'corporates.test']);
+        foreach (['index', 'show', 'store', 'update'] as $acao) {
+            Permission::firstOrCreate(['name' => "corporates.$acao", 'guard_name' => 'web']);
+            $role->givePermissionTo("corporates.$acao");
+        }
+
         $this->user = User::factory()->create();
+        $this->user->assignRole($role);
         Sanctum::actingAs($this->user);
 
         foreach (['prod', 'dev', 'hmg'] as $ambiente) {
@@ -140,5 +151,13 @@ class DumpsEndpointTest extends TestCase
         (new RefreshDatabaseJob($dump))->handle(app(\App\Actions\Dumps\AtualizarBancoAction::class));
 
         $this->assertSame('falha', $dump->fresh()->status);
+    }
+
+    public function test_exige_as_permissoes_de_organizacoes()
+    {
+        Sanctum::actingAs(User::factory()->create());
+
+        $this->getJson('/api/dumps/organizacoes')->assertForbidden();
+        $this->postJson('/api/dumps', ['corporate_id' => $this->municipio->id, 'destino' => 'dev'])->assertForbidden();
     }
 }
