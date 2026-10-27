@@ -14,12 +14,24 @@ class Corporate extends Init
         'first_name',
         'last_name',
         'address',
+        'ativo',
+        'host_prod',
+        'banco_prod',
+        'host_dev',
+        'banco_dev',
+        'host_hmg',
+        'banco_hmg',
         'corporate_group_id',
+    ];
+
+    protected $casts = [
+        'ativo' => 'boolean',
     ];
 
     protected $appends = [
         'full_name',
-        'letter'
+        'letter',
+        'nome',
     ];
 
     public function getLetterAttribute()
@@ -34,9 +46,20 @@ class Corporate extends Init
             return $this->first_name . ' ' . $this->last_name;
     }
 
+    // Nome para exibição e para a confirmação da atualização de banco (first_name e last_name podem vir vazios).
+    public function getNomeAttribute()
+    {
+        return trim($this->first_name . ' ' . $this->last_name);
+    }
+
     public function group()
     {
         return $this->belongsTo(CorporateGroup::class, 'corporate_group_id');
+    }
+
+    public function dumps()
+    {
+        return $this->hasMany(Dump::class);
     }
 
     public function clients()
