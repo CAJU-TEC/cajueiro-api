@@ -42,6 +42,15 @@ return [
             'after_commit' => false,
         ],
 
+        // Fila dedicada à atualização de bancos: jobs longos (retry_after > timeout do job).
+        'db-refresh' => [
+            'driver' => 'database',
+            'table' => 'jobs',
+            'queue' => 'db-refresh',
+            'retry_after' => 11000,
+            'after_commit' => false,
+        ],
+
         'beanstalkd' => [
             'driver' => 'beanstalkd',
             'host' => 'localhost',
