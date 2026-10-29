@@ -15,6 +15,14 @@ class ReportService
         '5b499a26-6f55-459a-b350-6c2d62c2100f',
         'f8d16225-970d-459c-b955-62ed1d8f2b43',
         '776ca974-2d03-4816-a3a1-2cb5a7d64efa',
+        '7888b92a-4b68-4e1c-8819-0116b0562a30', // Clailton da Costa
+        'a0b4ec8f-63be-44f2-861b-9574ae453c36', // Matheus Sousa
+    ];
+
+    // QAs que continuam excluídos dos relatórios de dev, mas deixam de aparecer no
+    // relatório de QA a partir do mês indicado (meses anteriores mantêm o histórico).
+    protected array $qaReportIgnoredFrom = [
+        '5b499a26-6f55-459a-b350-6c2d62c2100f' => '2026-10-01', // Liam Hoffman Brito da Costa Santos
     ];
 
     // IDs dos desenvolvedores para retrospectiva
@@ -551,6 +559,11 @@ class ReportService
     {
         [$start, $end] = $this->getDateRange($month, $year);
 
+        $ignoredIds = array_keys(array_filter(
+            $this->qaReportIgnoredFrom,
+            fn($from) => $start->gte(Carbon::parse($from))
+        ));
+
         $comments = DB::table('comments')
             ->select(
                 'comments.collaborator_id',
@@ -561,6 +574,7 @@ class ReportService
             )
             ->join('tickets', 'comments.commentable_id', '=', 'tickets.id')
             ->whereIn('comments.collaborator_id', $this->excludedIds)
+            ->whereNotIn('comments.collaborator_id', $ignoredIds)
             ->whereNull('comments.deleted_at')
             ->whereNull('tickets.deleted_at')
             ->whereBetween('comments.created_at', [$start, $end])
